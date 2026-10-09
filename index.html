@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="استوديو مَسار: رسم العمليات المؤسسية وتحديد الصلاحيات وتوليد الأدلة بصيغتي Word وPDF.">
+<meta name="description" content="استوديو مَسار: رسم العمليات المؤسسية من الهيكل الوظيفي، وتحديد الصلاحيات، وتوليد الأدلة بصيغتي Word وPDF.">
 <style>[hidden]{display:none!important}body{margin:0}img{max-width:100%}</style>
 <title>استوديو مَسار للعمليات</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,7 +17,7 @@
   --accent:#0d6b63; --accent-ink:#ffffff; --accent-soft:#dcefeb;
   --decision:#a86200; --decision-soft:#fff0d4; --gw:#3c5a8a; --gw-soft:#e5ecf8;
   --good:#2b7a4b; --bad:#b42318; --bad-soft:#fde6e3; --sel:#2a5bd7;
-  --grid:#dfe7e5;
+  --grid:#dfe7e5; --lane-a:#fbfcfc; --lane-b:#f0f5f4; --lane-head:#e2eeeb; --lane-line:#cdd8d6;
   --f-ui:"IBM Plex Sans Arabic", "Segoe UI", Tahoma, sans-serif;
   --f-display:"Noto Kufi Arabic", "IBM Plex Sans Arabic", Tahoma, sans-serif;
   --f-mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
@@ -26,12 +26,12 @@
   --bg:#0f1719; --surface:#162125; --surface-2:#1d2a2f; --ink:#e6eeec; --muted:#9aacab; --line:#2c3c41;
   --accent:#3fb3a6; --accent-ink:#06201d; --accent-soft:#173a37;
   --decision:#f0a64a; --decision-soft:#3a2a12; --gw:#8fb0e6; --gw-soft:#1c2a40;
-  --good:#5cc489; --bad:#ff7b6b; --bad-soft:#3a1916; --sel:#7ea2ff; --grid:#1c282c; color-scheme:dark}}
+  --good:#5cc489; --bad:#ff7b6b; --bad-soft:#3a1916; --sel:#7ea2ff; --grid:#1c282c; --lane-a:#152024; --lane-b:#1a272b; --lane-head:#22363b; --lane-line:#2c3c41; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0f1719; --surface:#162125; --surface-2:#1d2a2f; --ink:#e6eeec; --muted:#9aacab; --line:#2c3c41;
   --accent:#3fb3a6; --accent-ink:#06201d; --accent-soft:#173a37;
   --decision:#f0a64a; --decision-soft:#3a2a12; --gw:#8fb0e6; --gw-soft:#1c2a40;
-  --good:#5cc489; --bad:#ff7b6b; --bad-soft:#3a1916; --sel:#7ea2ff; --grid:#1c282c; color-scheme:dark}
+  --good:#5cc489; --bad:#ff7b6b; --bad-soft:#3a1916; --sel:#7ea2ff; --grid:#1c282c; --lane-a:#152024; --lane-b:#1a272b; --lane-head:#22363b; --lane-line:#2c3c41; color-scheme:dark}
 *{box-sizing:border-box}
 html,body{height:100%}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:14px;line-height:1.6}
@@ -146,6 +146,39 @@ table.grid td input,table.grid td select,table.grid td textarea{width:100%;borde
 .paper .cover{border-bottom:3px solid #0d6b63;padding-bottom:14px;margin-bottom:8px}
 .paper .pb{page-break-before:always}
 
+/* org import & methodology */
+.steps3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.stepcard{display:flex;gap:10px;align-items:flex-start;padding:12px;border-radius:8px;background:var(--surface);border:1px solid var(--line)}
+.stepcard b{display:block;font-size:13.5px}
+.stepcard .num{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:700;font-size:13px}
+.stepcard.done .num{background:var(--accent);color:var(--accent-ink)}
+.drop{border:1.5px dashed var(--line);border-radius:10px;padding:16px;text-align:center;color:var(--muted);background:var(--bg)}
+.drop.over{border-color:var(--accent);background:var(--accent-soft)}
+.tree{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.tree .tree{padding-inline-start:20px;border-inline-start:1px dashed var(--line);margin-inline-start:8px;margin-top:4px}
+.tree details{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:5px 10px}
+.tree summary{cursor:pointer;font-size:13px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tree summary small{color:var(--muted)}
+.tree ol{margin:6px 0 2px;padding-inline-start:20px;font-size:12.5px;color:var(--muted)}
+.kind{font-size:11px;padding:1px 8px;border-radius:99px;white-space:nowrap;font-weight:600}
+.kind.decision{background:var(--decision-soft);color:var(--decision)}
+.kind.xor{background:var(--gw-soft);color:var(--gw)}
+.kind.task,.kind.service{background:var(--surface-2);color:var(--muted)}
+.draft td.src{font-size:11.5px;color:var(--muted);max-width:260px}
+.draft .mv{border:1px solid var(--line);background:var(--surface);border-radius:4px;width:26px;height:24px;padding:0;font-size:12px}
+.method{display:flex;flex-direction:column;gap:8px}
+.mstage{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;padding:12px 14px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.mstage.done{border-color:var(--accent);background:color-mix(in srgb,var(--accent-soft) 45%,var(--surface))}
+.mstage .num{grid-row:span 3;width:30px;height:30px;border-radius:50%;border:1.5px solid var(--accent);color:var(--accent);display:grid;place-items:center;font-weight:700;font-variant-numeric:tabular-nums}
+.mstage.done .num{background:var(--accent);color:var(--accent-ink)}
+.mstage h4{margin:0;font-size:14px}
+.mstage p{margin:0;font-size:13px;color:var(--muted)}
+.mstage .mfoot{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.mstage .mfoot input[type=text]{flex:1;min-width:180px;border:1px solid var(--line);border-radius:6px;padding:5px 9px;background:var(--bg)}
+.progress{height:8px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+.progress span{display:block;height:100%;background:var(--accent)}
+@media (max-width:980px){.steps3{grid-template-columns:1fr}}
+
 /* toast */
 .toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));inset-inline-start:50%;transform:translateX(50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:8px;font-size:13px;z-index:50;max-width:calc(100% - 32px)}
 .ro-note{background:var(--decision-soft);color:var(--ink);font-size:12.5px;padding:8px 10px;border-radius:6px}
@@ -178,9 +211,11 @@ table.grid td input,table.grid td select,table.grid td textarea{width:100%;borde
     <div class="brand"><b>مَسار</b><span>استوديو العمليات والصلاحيات</span></div>
     <nav class="tabs" role="tablist" id="tabs">
       <button class="tab" role="tab" data-tab="editor" aria-selected="true">الرسم</button>
+      <button class="tab" role="tab" data-tab="org" aria-selected="false">من الهيكل الوظيفي</button>
       <button class="tab" role="tab" data-tab="matrix" aria-selected="false">مصفوفة الصلاحيات</button>
       <button class="tab" role="tab" data-tab="roles" aria-selected="false">الأدوار والتفويض</button>
       <button class="tab" role="tab" data-tab="guide" aria-selected="false">الدليل والتصدير</button>
+      <button class="tab" role="tab" data-tab="method" aria-selected="false">منهجية البناء</button>
       <button class="tab" role="tab" data-tab="audit" aria-selected="false">الإصدارات والسجل</button>
     </nav>
     <div class="acting"><label for="actingSel">أعمل بصفتي</label><select id="actingSel"></select><span class="lvl" id="actingLvl"></span></div>
@@ -262,6 +297,11 @@ function sample(){
 let S;
 try{ const raw = localStorage.getItem(STORE_KEY); S = raw ? JSON.parse(raw) : sample(); }catch(e){ S = sample(); }
 let ui = {tab:'editor', sel:null, selEdge:null, sideTab:'props', zoom:1, query:'', matrixQuery:'', matrixType:'all', guideOpts:{map:true,steps:true,matrix:true,raci:true,roles:true,deleg:true,versions:true}, compareTo:''};
+const LANE_TOP=20, LANE_H=150, LANE_HEAD=150;
+function migrate(){ const p=S.process; if(p.lanes===undefined) p.lanes=false; if(!Array.isArray(p.laneOrder)) p.laneOrder=[]; S.method=S.method||{}; S.delegations=S.delegations||[]; S.versions=S.versions||[]; S.log=S.log||[]; if(S.org===undefined) S.org=null; }
+migrate();
+Object.assign(ui,{orgText:null, orgMsg:'', draft:null, draftMeta:{}, orgOpts:{name:'إجراء التوظيف', code:'HR-03', kw:'وظيف، مرشح، متقدم، مقابل، احتياج، الموظف الجديد', dept:'', gateways:true, mergeRoles:true}, ai:null, aiBusy:false});
+ui.guideOpts.method=true;
 const undoStack = [];
 function save(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(S)); }catch(e){} }
 function snapshot(){ undoStack.push(JSON.stringify(S)); if(undoStack.length>60) undoStack.shift(); }
@@ -379,6 +419,11 @@ function boundary(n, tx, ty){
   else s=Math.min(dx?hw/Math.abs(dx):Infinity, dy?hh/Math.abs(dy):Infinity);
   return {x:n.x+dx*s, y:n.y+dy*s};
 }
+function segHits(p1,p2,o){
+  const d=dims(o), hw=d.w/2+6, hh=d.h/2+6;
+  for(let t=.1;t<.95;t+=.1){ const x=p1.x+(p2.x-p1.x)*t, y=p1.y+(p2.y-p1.y)*t; if(Math.abs(x-o.x)<hw && Math.abs(y-o.y)<hh) return true; }
+  return false;
+}
 function wrap(str, max){
   const words=String(str||'').split(/\s+/); const lines=[]; let cur='';
   words.forEach(w=>{ if((cur+' '+w).trim().length>max && cur){ lines.push(cur); cur=w; } else cur=(cur+' '+w).trim(); });
@@ -389,12 +434,13 @@ function wrap(str, max){
 function extent(){
   let maxX=900,maxY=480;
   S.nodes.forEach(n=>{ maxX=Math.max(maxX,n.x+140); maxY=Math.max(maxY,n.y+120); });
+  if(lanesOn()){ maxX+=LANE_HEAD; maxY=Math.max(maxY, LANE_TOP+S.process.laneOrder.length*LANE_H+20); }
   return {W:Math.ceil(maxX), H:Math.ceil(maxY)};
 }
 
 /* ---------- SVG renderer (screen uses tokens; export uses literal colours) ---------- */
-const LIT = {ink:'#1b2329', muted:'#56666d', line:'#5c6f75', surface:'#ffffff', accent:'#0d6b63', accentSoft:'#dcefeb', dec:'#a86200', decSoft:'#fff0d4', gw:'#3c5a8a', gwSoft:'#e5ecf8', good:'#2b7a4b', bad:'#b42318', docSoft:'#f2f5f4', bg:'#ffffff', sel:'#2a5bd7', grid:'#eef2f1'};
-const VAR = {ink:'var(--ink)', muted:'var(--muted)', line:'var(--muted)', surface:'var(--surface)', accent:'var(--accent)', accentSoft:'var(--accent-soft)', dec:'var(--decision)', decSoft:'var(--decision-soft)', gw:'var(--gw)', gwSoft:'var(--gw-soft)', good:'var(--good)', bad:'var(--bad)', docSoft:'var(--surface-2)', bg:'var(--bg)', sel:'var(--sel)', grid:'var(--grid)'};
+const LIT = {ink:'#1b2329', muted:'#56666d', line:'#5c6f75', surface:'#ffffff', accent:'#0d6b63', accentSoft:'#dcefeb', dec:'#a86200', decSoft:'#fff0d4', gw:'#3c5a8a', gwSoft:'#e5ecf8', good:'#2b7a4b', bad:'#b42318', docSoft:'#f2f5f4', bg:'#ffffff', sel:'#2a5bd7', grid:'#eef2f1', laneA:'#fbfcfc', laneB:'#f0f5f4', laneHead:'#e2eeeb', laneLine:'#cdd8d6'};
+const VAR = {ink:'var(--ink)', muted:'var(--muted)', line:'var(--muted)', surface:'var(--surface)', accent:'var(--accent)', accentSoft:'var(--accent-soft)', dec:'var(--decision)', decSoft:'var(--decision-soft)', gw:'var(--gw)', gwSoft:'var(--gw-soft)', good:'var(--good)', bad:'var(--bad)', docSoft:'var(--surface-2)', bg:'var(--bg)', sel:'var(--sel)', grid:'var(--grid)', laneA:'var(--lane-a)', laneB:'var(--lane-b)', laneHead:'var(--lane-head)', laneLine:'var(--lane-line)'};
 function renderSVG({lit=false, interactive=false}={}){
   const C = lit?LIT:VAR; const {W,H}=extent();
   const font = lit?'font-family="Arial, Tahoma, sans-serif"':'';
@@ -406,17 +452,29 @@ function renderSVG({lit=false, interactive=false}={}){
   if(!lit) s += `<pattern id="gridp" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="${C.grid}" stroke-width="1"/></pattern>`;
   s += `</defs>`;
   s += `<rect width="${W}" height="${H}" fill="${lit?C.bg:'url(#gridp)'}" data-bg="1"/>`;
+  if(lanesOn()){
+    S.process.laneOrder.forEach((rid,i)=>{
+      const y=LANE_TOP+i*LANE_H;
+      s += `<rect x="10" y="${y}" width="${W-20}" height="${LANE_H}" fill="${i%2?C.laneB:C.laneA}" stroke="${C.laneLine}" stroke-width="1" pointer-events="none"/>`;
+      s += `<rect x="${W-140}" y="${y}" width="130" height="${LANE_H}" fill="${C.laneHead}" stroke="${C.laneLine}" stroke-width="1" pointer-events="none"/>`;
+      const lines=wrap(roleName(rid)||'—',14); const base=y+LANE_H/2-(lines.length-1)*8+4;
+      lines.forEach((ln,j)=>{ s += `<text x="${W-75}" y="${base+j*16}" text-anchor="middle" ${cls('n-label',12.5,C.ink,'font-weight="600"')} pointer-events="none">${esc(ln)}</text>`; });
+    });
+  }
   // edges
   S.edges.forEach(e=>{
     const a=nodeById(e.from), b=nodeById(e.to); if(!a||!b) return;
-    const p1=boundary(a,b.x,b.y), p2=boundary(b,a.x,a.y);
+    let p1=boundary(a,b.x,b.y), p2=boundary(b,a.x,a.y), path, mx, my;
+    const blocked = S.nodes.some(o=>o!==a && o!==b && segHits(p1,p2,o));
+    if(blocked){ p1={x:a.x,y:a.y-dims(a).h/2}; p2={x:b.x,y:b.y-dims(b).h/2}; const cy=Math.min(p1.y,p2.y)-70; path=`M${p1.x} ${p1.y}Q${(p1.x+p2.x)/2} ${cy} ${p2.x} ${p2.y}`; mx=(p1.x+p2.x)/2; my=.25*p1.y+.5*cy+.25*p2.y; }
+    else { path=`M${p1.x} ${p1.y}L${p2.x} ${p2.y}`; mx=(p1.x+p2.x)/2; my=(p1.y+p2.y)/2; }
     const sel = !lit && ui.selEdge===e.id;
     const dashed = a.type==='doc';
     s += `<g data-edge="${e.id}">`;
-    if(interactive) s += `<line class="edge-hit" x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="transparent" stroke-width="14"/>`;
-    s += `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="${sel?C.sel:C.line}" stroke-width="${sel?2.2:1.4}" ${dashed?'stroke-dasharray="4 4"':''} marker-end="url(#arw${lit?'L':''})" pointer-events="none"/>`;
+    if(interactive) s += `<path class="edge-hit" d="${path}" fill="none" stroke="transparent" stroke-width="14"/>`;
+    s += `<path d="${path}" fill="none" stroke="${sel?C.sel:C.line}" stroke-width="${sel?2.2:1.4}" ${dashed?'stroke-dasharray="4 4"':''} marker-end="url(#arw${lit?'L':''})" pointer-events="none"/>`;
     if(e.label){
-      const mx=(p1.x+p2.x)/2, my=(p1.y+p2.y)/2; const w=e.label.length*6.6+14;
+      const w=e.label.length*6.6+14;
       s += `<rect x="${mx-w/2}" y="${my-11}" width="${w}" height="20" rx="4" fill="${C.surface}" stroke="${C.line}" stroke-width=".6" pointer-events="none"/>`;
       s += `<text x="${mx}" y="${my+3}" text-anchor="middle" ${cls('e-label',11.5,C.ink)} pointer-events="none">${esc(e.label)}</text>`;
     }
@@ -503,6 +561,8 @@ function render(){
   else if(ui.tab==='matrix') v.innerHTML = matrixView();
   else if(ui.tab==='roles') v.innerHTML = rolesView();
   else if(ui.tab==='guide') { v.innerHTML = guideView(); buildPreview(); }
+  else if(ui.tab==='org') v.innerHTML = orgView();
+  else if(ui.tab==='method') v.innerHTML = methodView();
   else v.innerHTML = auditView();
   if(ui.tab==='editor') bindCanvas();
 }
@@ -544,6 +604,8 @@ function sideView(){
       <div class="field"><label for="p_purpose">الغرض</label><textarea id="p_purpose" data-p="purpose" ${dis}>${esc(S.process.purpose)}</textarea></div>
       <div class="field"><label for="p_scope">النطاق</label><textarea id="p_scope" data-p="scope" ${dis}>${esc(S.process.scope)}</textarea></div>
       <div class="field"><label for="p_refs">المراجع والسياسات</label><input id="p_refs" data-p="refs" value="${esc(S.process.refs)}" ${dis}></div>
+      <div><h4>الحارات</h4><label class="chk"><input type="checkbox" id="lanesToggle" ${S.process.lanes?'checked':''} ${dis}> عرض حارة لكل دور</label>
+      ${ro||!S.process.lanes?'':'<button class="btn" data-act="arrange" style="margin-top:6px">إعادة ترتيب العناصر على حاراتها</button>'}</div>
       <div><h4>التحقق من الخريطة (${iss.length})</h4><div class="issues">${iss.length?iss.map(i=>`<button class="issue" ${i.id?`data-goto="${i.id}"`:''}>${esc(i.msg)}</button>`).join(''):'<div class="issue ok">الخريطة مكتملة: لا ملاحظات</div>'}</div></div>`;
   }
   const t=ui.sideTab;
@@ -666,7 +728,7 @@ function guideView(){
     <div class="guide">
       <div class="panel">
         <h3>أقسام الدليل</h3>
-        ${opt('map','خريطة العملية')}${opt('steps','وصف الخطوات (الشرح الآلي)')}${opt('matrix','مصفوفة الصلاحيات')}${opt('raci','ملخص المسؤوليات حسب الدور')}${opt('roles','ملحق الأدوار وشاغليها')}${opt('deleg','ملحق التفويضات')}${opt('versions','سجل الإصدارات')}
+        ${opt('map','خريطة العملية')}${opt('steps','وصف الخطوات (الشرح الآلي)')}${opt('matrix','مصفوفة الصلاحيات')}${opt('raci','ملخص المسؤوليات حسب الدور')}${opt('roles','ملحق الأدوار وشاغليها')}${opt('deleg','ملحق التفويضات')}${opt('method','منهجية البناء')}${opt('versions','سجل الإصدارات')}
         <h3 style="margin-top:6px">التصدير</h3>
         <button class="btn primary" data-act="exportDocx">تنزيل Word (docx)</button>
         <button class="btn primary" data-act="exportPdf">تنزيل PDF</button>
@@ -720,6 +782,7 @@ async function buildPreview(){
   if(o.raci) h += `<h2>المسؤوليات حسب الدور</h2><table><tr><th>الدور</th><th>ينفذ</th><th>يعتمد</th><th>يُستشار في</th><th>يُبلَّغ بـ</th></tr>${d.raci.map(x=>`<tr><td>${esc(x.r.name)}</td><td>${esc(x.R.join('، ')||'—')}</td><td>${esc(x.A.join('، ')||'—')}</td><td>${esc(x.C.join('، ')||'—')}</td><td>${esc(x.I.join('، ')||'—')}</td></tr>`).join('')}</table>`;
   if(o.roles) h += `<h2>ملحق: الأدوار وشاغلوها</h2><table><tr><th>الدور</th><th>الشاغلون</th><th>صلاحية المنصة</th></tr>${S.roles.map(r=>`<tr><td>${esc(r.name)}</td><td>${esc(r.users)}</td><td>${LEVELS[r.level]}</td></tr>`).join('')}</table>`;
   if(o.deleg) h += `<h2>ملحق: التفويضات النافذة</h2>${S.delegations.length?`<table><tr><th>العنصر</th><th>من</th><th>إلى</th><th>السقف</th><th>حتى</th></tr>${S.delegations.map(x=>`<tr><td>${esc(nodeById(x.nodeId)?.name||'')}</td><td>${esc(roleName(x.from))}</td><td>${esc(roleName(x.to))}</td><td>${esc(x.limit)}</td><td>${esc(x.until)}</td></tr>`).join('')}</table>`:'<p>لا توجد تفويضات.</p>'}`;
+  if(o.method) h += `<h2>منهجية بناء الإجراء</h2><p>${esc(METHOD_INTRO)}</p><table><tr><th>#</th><th>المرحلة</th><th>ما يتم فيها</th><th>الحالة</th><th>ملاحظات</th></tr>${METHOD.map((m,i)=>`<tr><td>${i+1}</td><td>${m.title}</td><td>${m.desc}</td><td>${S.method[m.id]&&S.method[m.id].done?'مكتملة':'—'}</td><td>${esc((S.method[m.id]||{}).note||'')}</td></tr>`).join('')}</table><h3>قواعد تصنيف المهام</h3><table><tr><th>الفعل في الوصف الوظيفي</th><th>العنصر</th><th>الإسناد الافتراضي</th></tr>${RULES.map(r=>`<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td><td>${esc(r[2])}</td></tr>`).join('')}</table><h3>قاعدة ترتيب التسلسل</h3><p>${LIFECYCLE.map((x,i)=>`${i+1}. ${esc(x)}`).join('، ')}.</p>`;
   if(o.versions) h += `<h2>سجل الإصدارات</h2>${S.versions.length?`<table><tr><th>الإصدار</th><th>التاريخ</th><th>بواسطة</th><th>الحالة</th><th>ملخص التغيير</th></tr>${S.versions.map(v=>`<tr><td>${esc(v.v)}</td><td>${esc(v.at)}</td><td>${esc(v.by)}</td><td>${v.status==='approved'?'معتمد':'مسودة'}</td><td>${esc(v.note)}</td></tr>`).join('')}</table>`:'<p>لم تُحفظ إصدارات بعد.</p>'}`;
   el.innerHTML = h;
 }
@@ -832,7 +895,17 @@ document.addEventListener('click', async e=>{
   if(t.dataset.deldel){ snapshot(); S.delegations=S.delegations.filter(d=>d.id!==t.dataset.deldel); commit('إلغاء تفويض'); render(); return; }
   if(t.dataset.compare!==undefined){ ui.compareTo=+t.dataset.compare; render(); return; }
   if(t.dataset.restore!==undefined && canEdit()){ const v=S.versions[+t.dataset.restore]; snapshot(); const old=JSON.parse(v.snapshot); S.nodes=old.nodes; S.edges=old.edges; S.process=Object.assign({},old.process,{status:'draft'}); commit('استعادة إصدار كمسودة', v.v); toast('استُعيد الإصدار '+v.v+' كمسودة'); render(); return; }
+  if(t.dataset.dmv!==undefined){ const i=+t.dataset.dmv, d=+t.dataset.dir, j=i+d; if(j>=0&&j<ui.draft.length){ [ui.draft[i],ui.draft[j]]=[ui.draft[j],ui.draft[i]]; render(); } return; }
+  if(t.dataset.ddel!==undefined){ ui.draft.splice(+t.dataset.ddel,1); render(); return; }
   const act=t.dataset.act; if(!act) return;
+  if(act==='orgParse'){ const jobs=parseOrgText(ui.orgText); if(!jobs.length){ ui.orgMsg='لم أجد وظائف. ابدأ كل وظيفة بسطر «المسمى: …».'; render(); return; } S.org={jobs, file:''}; ui.draft=null; ui.orgMsg=`قُرئ ${jobs.length} وظيفة و${jobs.reduce((a,j)=>a+j.duties.length,0)} مهمة.`; commit('قراءة الهيكل الوظيفي من نص'); render(); return; }
+  if(act==='orgExample'){ ui.orgText=ORG_EXAMPLE; S.org={example:true, jobs:parseOrgText(ORG_EXAMPLE)}; ui.draft=null; ui.orgMsg='حُمّل المثال.'; save(); render(); return; }
+  if(act==='orgTemplate'){ downloadTemplate(); return; }
+  if(act==='draftRules'){ ui.draft=draftFromRules(); ui.draftMeta={by:'rules'}; ui.orgMsg=ui.draft.length?`مسودة من ${ui.draft.length} خطوة بقواعد التصنيف. راجع الترتيب والأدوار.`:''; render(); return; }
+  if(act==='draftAI'){ draftFromAI(); return; }
+  if(act==='draftAdd'){ ui.draft.push({k:uid('s'), type:'task', name:'خطوة جديدة', source:'', r:'', a:'', c:[], i:[], purpose:'', inputs:'', outputs:'', sla:'', limit:'', system:'', yes:'', no:''}); render(); return; }
+  if(act==='draftBuild'){ buildFromDraft(); return; }
+  if(act==='arrange'){ snapshot(); if(arrangeLanes()){ commit('ترتيب العناصر على الحارات'); toast('رُتّبت العناصر على حارات الأدوار'); } else toast('أسند المنفذين أولًا لتظهر الحارات'); render(); return; }
   if(act==='delEdge'){ snapshot(); S.edges=S.edges.filter(x=>x.id!==ui.selEdge); ui.selEdge=null; commit('حذف مسار'); render(); }
   if(act==='delNode'){ const n=nodeById(ui.sel); snapshot(); S.nodes=S.nodes.filter(x=>x.id!==n.id); S.edges=S.edges.filter(x=>x.from!==n.id&&x.to!==n.id); S.delegations=S.delegations.filter(d=>d.nodeId!==n.id); ui.sel=null; commit('حذف عنصر', n.name); render(); }
   if(act==='dup'){ const n=nodeById(ui.sel); snapshot(); const c=JSON.parse(JSON.stringify(n)); c.id=uid('n'); c.x+=40; c.y+=90; c.code=nextCode(c.type); c.comments=[]; S.nodes.push(c); ui.sel=c.id; commit('تكرار عنصر', c.name); render(); }
@@ -869,7 +942,7 @@ document.addEventListener('click', async e=>{
   if(act==='exportPdf') exportPdf();
   if(act==='exportPng') exportPng();
   if(act==='exportJson') saveFile(`${S.process.code}-model.json`, JSON.stringify(S,null,2), 'حفظ النموذج');
-  if(act==='reset'){ if(t.dataset.confirm!=='1'){ t.dataset.confirm='1'; t.textContent='تأكيد: سيُستبدل النموذج الحالي'; setTimeout(()=>{ t.dataset.confirm=''; t.textContent='إعادة تحميل المثال'; },4000); return; } S=sample(); undoStack.length=0; ui.sel=null; save(); toast('أُعيد تحميل المثال'); render(); }
+  if(act==='reset'){ if(t.dataset.confirm!=='1'){ t.dataset.confirm='1'; t.textContent='تأكيد: سيُستبدل النموذج الحالي'; setTimeout(()=>{ t.dataset.confirm=''; t.textContent='إعادة تحميل المثال'; },4000); return; } S=sample(); migrate(); undoStack.length=0; ui.sel=null; save(); toast('أُعيد تحميل المثال'); render(); }
 });
 
 document.addEventListener('dragstart', e=>{ const b=e.target.closest && e.target.closest('[data-add]'); if(b) e.dataTransfer.setData('text/plain', b.dataset.add); });
@@ -878,7 +951,11 @@ document.addEventListener('input', e=>{
   const t=e.target;
   if(t.id==='search'){ ui.query=t.value; if(ui.tab==='editor') redrawCanvas(); return; }
   if(t.id==='mq'){ ui.matrixQuery=t.value; const pos=t.selectionStart; render(); const m=$('#mq'); m.focus(); m.setSelectionRange(pos,pos); return; }
+  if(t.id==='orgText'){ ui.orgText=t.value; return; }
+  if(t.dataset.oo && t.type!=='checkbox' && t.tagName!=='SELECT'){ ui.orgOpts[t.dataset.oo]=t.value; return; }
+  if(t.dataset.di!==undefined && t.tagName==='INPUT'){ ui.draft[+t.dataset.di][t.dataset.dk]=t.value; return; }
   if(!canEdit()) return;
+  if(t.dataset.mnote){ S.method[t.dataset.mnote]=Object.assign(S.method[t.dataset.mnote]||{}, {note:t.value}); save(); return; }
   if(t.dataset.f && ['INPUT','TEXTAREA'].includes(t.tagName) && t.type!=='checkbox'){ const n=nodeById(ui.sel); if(!n) return; if(!t._snap){ snapshot(); t._snap=1; } n[t.dataset.f]=t.value; redrawCanvas(); save(); return; }
   if(t.dataset.p && ['INPUT','TEXTAREA'].includes(t.tagName)){ if(!t._snap){ snapshot(); t._snap=1; } S.process[t.dataset.p]=t.value; renderHeader(); save(); return; }
   if(t.id==='edgeLabel'){ const ed=S.edges.find(x=>x.id===ui.selEdge); if(!t._snap){ snapshot(); t._snap=1; } ed.label=t.value; redrawCanvas(); save(); return; }
@@ -889,7 +966,13 @@ document.addEventListener('change', e=>{
   if(t.id==='actingSel'){ S.acting=t.value; save(); log('تبديل الدور', roleName(S.acting)); render(); toast('تعمل الآن بصفة: '+roleName(S.acting)+' ('+LEVELS[level()]+')'); return; }
   if(t.id==='mtype'){ ui.matrixType=t.value; render(); return; }
   if(t.dataset.gopt){ ui.guideOpts[t.dataset.gopt]=t.checked; buildPreview(); return; }
-  if(t.id==='importFile'){ const f=t.files[0]; if(!f) return; const rd=new FileReader(); rd.onload=()=>{ try{ const d=JSON.parse(rd.result); if(!d.nodes||!d.roles||!d.process) throw 0; snapshot(); S=Object.assign({delegations:[],versions:[],log:[]},d); log('استيراد نموذج', f.name); save(); toast('استُورد النموذج'); render(); }catch(_){ toast('الملف ليس نموذجًا صالحًا من هذا الاستوديو'); } }; rd.readAsText(f); return; }
+  if(t.id==='orgFile'){ handleOrgFile(t.files[0]); return; }
+  if(t.dataset.oo){ ui.orgOpts[t.dataset.oo] = t.type==='checkbox'?t.checked:t.value; return; }
+  if(t.dataset.di!==undefined && t.tagName==='SELECT'){ ui.draft[+t.dataset.di][t.dataset.dk]=t.value; render(); return; }
+  if(t.dataset.mdone && canEdit()){ S.method[t.dataset.mdone]=Object.assign(S.method[t.dataset.mdone]||{}, {done:t.checked}); commit((t.checked?'إكمال':'إعادة فتح')+' مرحلة منهجية', METHOD.find(m=>m.id===t.dataset.mdone)?.title); render(); return; }
+  if(t.dataset.mnote && canEdit()){ commit('ملاحظة على مرحلة منهجية', METHOD.find(m=>m.id===t.dataset.mnote)?.title); return; }
+  if(t.id==='lanesToggle' && canEdit()){ snapshot(); S.process.lanes=t.checked; if(t.checked){ if(!arrangeLanes()){ S.process.lanes=false; toast('أسند المنفذين للعناصر أولًا'); } } commit(t.checked?'تفعيل الحارات':'إخفاء الحارات'); render(); return; }
+  if(t.id==='importFile'){ const f=t.files[0]; if(!f) return; const rd=new FileReader(); rd.onload=()=>{ try{ const d=JSON.parse(rd.result); if(!d.nodes||!d.roles||!d.process) throw 0; snapshot(); S=Object.assign({delegations:[],versions:[],log:[]},d); migrate(); log('استيراد نموذج', f.name); save(); toast('استُورد النموذج'); render(); }catch(_){ toast('الملف ليس نموذجًا صالحًا من هذا الاستوديو'); } }; rd.readAsText(f); return; }
   if(!canEdit()) return;
   if(t.dataset.f){ const n=nodeById(ui.sel); if(!n) return; if(t.type==='checkbox'){ snapshot(); n[t.dataset.f]=t.checked; }
     else if(t.tagName==='SELECT'){ snapshot(); n[t.dataset.f]=t.value; }
@@ -908,7 +991,7 @@ document.addEventListener('keydown', e=>{
   }
 });
 $('#undoBtn').addEventListener('click', ()=>undo());
-function undo(){ if(!undoStack.length||!canEdit()) return; const acting=S.acting; S=JSON.parse(undoStack.pop()); S.acting=acting; if(ui.sel&&!nodeById(ui.sel)) ui.sel=null; save(); toast('تم التراجع'); render(); }
+function undo(){ if(!undoStack.length||!canEdit()) return; const acting=S.acting; S=JSON.parse(undoStack.pop()); S.acting=acting; migrate(); if(ui.sel&&!nodeById(ui.sel)) ui.sel=null; save(); toast('تم التراجع'); render(); }
 
 /* ---------- export ---------- */
 function directDownload(filename, data){
@@ -919,10 +1002,8 @@ function directDownload(filename, data){
 }
 async function saveFile(filename, data, label){
   const st=$('#exportStatus');
-  try{
-    directDownload(filename, data);
-    log(label||'تصدير', filename); save(); toast('نُزّل الملف: '+filename); st&&(st.textContent='');
-  }catch(err){ toast('تعذر التنزيل'); st&&(st.textContent='تعذر التنزيل: '+(err&&err.message||'')); }
+  try{ directDownload(filename, data); log(label||'تصدير', filename); save(); toast('نُزّل الملف: '+filename); st&&(st.textContent=''); }
+  catch(err){ toast('تعذر التنزيل'); st&&(st.textContent='تعذر التنزيل: '+(err&&err.message||'')); }
 }
 async function exportPng(){ try{ const {blob}=await svgToPng(2.5); await saveFile(`${S.process.code}-map.png`, blob, 'تصدير صورة الخريطة'); }catch(_){ toast('تعذر توليد الصورة'); } }
 async function exportPdf(){
@@ -962,6 +1043,10 @@ async function exportDocx(){
   if(o.raci){ ch.push(h1('المسؤوليات حسب الدور')); ch.push(table(['الدور','ينفذ','يعتمد','يُستشار في','يُبلَّغ بـ'], d.raci.map(x=>[x.r.name,x.R.join('، ')||'—',x.A.join('، ')||'—',x.C.join('، ')||'—',x.I.join('، ')||'—']))); }
   if(o.roles){ ch.push(h1('ملحق: الأدوار وشاغلوها')); ch.push(table(['الدور','الشاغلون','صلاحية المنصة'], S.roles.map(r=>[r.name,r.users,LEVELS[r.level]]),[30,50,20])); }
   if(o.deleg){ ch.push(h1('ملحق: التفويضات النافذة')); ch.push(S.delegations.length?table(['العنصر','من','إلى','السقف','حتى'], S.delegations.map(x=>[nodeById(x.nodeId)?.name||'',roleName(x.from),roleName(x.to),x.limit,x.until])):para('لا توجد تفويضات.')); }
+  if(o.method){ ch.push(h1('منهجية بناء الإجراء')); ch.push(para(METHOD_INTRO));
+    ch.push(table(['#','المرحلة','ما يتم فيها','الحالة','ملاحظات'], METHOD.map((m,i)=>[String(i+1),m.title,m.desc,S.method[m.id]&&S.method[m.id].done?'مكتملة':'—',(S.method[m.id]||{}).note||'']),[5,20,45,12,18]));
+    ch.push(h2('قواعد تصنيف المهام')); ch.push(table(['الفعل في الوصف الوظيفي','العنصر','الإسناد الافتراضي'], RULES.map(r=>[r[0],r[1],r[2]])));
+    ch.push(h2('قاعدة ترتيب التسلسل')); LIFECYCLE.forEach((x,i)=>ch.push(para(`${i+1}. ${x}`))); }
   if(o.versions){ ch.push(h1('سجل الإصدارات')); ch.push(S.versions.length?table(['الإصدار','التاريخ','بواسطة','الحالة','ملخص التغيير'], S.versions.map(v=>[v.v,v.at,v.by,v.status==='approved'?'معتمد':'مسودة',v.note])):para('لم تُحفظ إصدارات بعد.')); }
   try{
     const doc=new D.Document({creator:'Masar Process Studio', title:p.name, styles:{default:{document:{run:{font:FONT, rightToLeft:true}}}},
@@ -975,8 +1060,465 @@ async function exportDocx(){
   }catch(e){ st.textContent='تعذر توليد ملف Word.'; toast('تعذر توليد ملف Word'); }
 }
 
+/* ---------- swimlanes ---------- */
+function lanesOn(){ return !!(S.process.lanes && S.process.laneOrder && S.process.laneOrder.length); }
+function laneRole(n){ return n.type==='decision' ? (n.a||n.r) : n.r; }
+function laneCenter(i){ return LANE_TOP + i*LANE_H + LANE_H/2; }
+function computeLaneOrder(){
+  const out=[]; stepsOrder().forEach(n=>{ const r=laneRole(n); if(r && roleById(r) && !out.includes(r)) out.push(r); });
+  return out;
+}
+function arrangeLanes(){
+  const P=S.process; P.laneOrder=computeLaneOrder(); if(!P.laneOrder.length) return false;
+  const placed=new Map();
+  S.nodes.forEach(n=>{ const i=P.laneOrder.indexOf(laneRole(n)); if(i>=0){ n.y=laneCenter(i); placed.set(n.id,i); } });
+  for(let pass=0;pass<4;pass++) S.nodes.forEach(n=>{
+    if(placed.has(n.id)) return;
+    const nb=[...incoming(n.id).map(e=>e.from),...outgoing(n.id).map(e=>e.to)].find(id=>placed.has(id));
+    if(nb!==undefined){ const i=placed.get(nb); n.y=laneCenter(i); placed.set(n.id,i); }
+  });
+  const byLane={}; S.nodes.forEach(n=>{ if(placed.has(n.id)){ const i=placed.get(n.id); (byLane[i]=byLane[i]||[]).push(n); } });
+  Object.values(byLane).forEach(arr=>{ arr.sort((a,b)=>b.x-a.x); for(let k=1;k<arr.length;k++){ if(arr[k-1].x-arr[k].x<170) arr[k].x=arr[k-1].x-170; } });
+  const minX=Math.min(...S.nodes.map(n=>n.x)); if(minX<90) S.nodes.forEach(n=>n.x+=90-minX);
+  return true;
+}
+
+/* ---------- Arabic text helpers ---------- */
+function norm(s){ return String(s||'').replace(/[ً-ْـ]/g,'').replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/\s+/g,' ').trim(); }
+const STOP = new Set(['من','في','على','الى','الي','مع','عن','قبل','بعد','حسب','وفق','التي','الذي','او','و','ثم','عند','لدى','كل','جميع','ذات','بين','خلال','حتى','ما','لا','ان','الخاصه','المتعلقه','اللازمه']);
+function stems(text){
+  return norm(text).split(/[\s،,.؛;:()\-–]+/).map(w=>{
+    w=w.replace(/^(وال|بال|كال|فال|لل|ال)/,'');
+    if(w.length>4) w=w.replace(/(ات|يه|ين|ون|ها|هم)$/,'');
+    if(w.length>3) w=w.replace(/[هي]$/,'');
+    if(w.length>3) w=w[0]+w.slice(1,-1).replace(/[اوي]/g,'')+w.at(-1);
+    return w;
+  }).filter(w=>w.length>=3 && !STOP.has(w));
+}
+
+/* ---------- classification ---------- */
+const STAGES = [
+  {st:0, kind:'start',   label:'إطلاق',  kw:['رفع','طلب','تقديم','استقبال','يرفع','يقدم']},
+  {st:1, kind:'prep',    label:'إعداد',  kw:['اعداد','يعد','تخطيط','تحديد','دراسه','تصميم','صياغه','اقتراح','تجهيز']},
+  {st:2, kind:'exec',    label:'تنفيذ',  kw:['نشر','تنفيذ','ينفذ','فرز','تنسيق','استقطاب','اجراء','توفير','شراء','تنظيم','ترشيح','استلام']},
+  {st:3, kind:'assess',  label:'تقييم',  kw:['تقييم','يقيم','المشاركه','مقابله','اختبار','قياس']},
+  {st:4, kind:'review',  label:'مراجعة', kw:['مراجعه','يراجع','تدقيق','يدقق','التحقق','يتحقق','التاكد','فحص','مطابقه']},
+  {st:5, kind:'approve', label:'اعتماد', kw:['اعتماد','يعتمد','الموافقه','يوافق','اقرار','يقر','توقيع','يوقع','البت','المصادقه']},
+  {st:6, kind:'record',  label:'تسجيل',  kw:['ادخال','يدخل','تسجيل','يسجل','تحديث','ارشفه','حفظ']},
+  {st:7, kind:'follow',  label:'متابعة', kw:['متابعه','يتابع','ابلاغ','اشعار','تقرير','تهيئه','رفع التقارير']}
+];
+STAGES.forEach(s=>s.kw=s.kw.map(norm));
+const ALL_KW = new Set(STAGES.flatMap(s=>s.kw.map(k=>k.replace(/^ال/,''))));
+function cleanDuty(text){ return String(text||'').replace(/^[\s\-–•*·▪◦\d.)(]+/,'').replace(/^(يقوم\s+ب|يتولى|القيام\s+ب|المسؤوليه\s+عن|المسؤولية\s+عن|مسؤول\s+عن)\s*/,'').trim(); }
+function classify(text){
+  const t=norm(cleanDuty(text)); const w=t.split(' '); const w0=w[0]||'', w01=(w[0]||'')+' '+(w[1]||'');
+  for(const st of STAGES){ if(st.kw.some(k=>w0===k||w0.startsWith(k)||w01.startsWith(k))) return st; }
+  return STAGES[2];
+}
+function shortName(text){
+  const words=cleanDuty(text).replace(/[.،]+$/,'').split(/\s+/);
+  let out=words.slice(0,7);
+  const cut=out.findIndex((w,i)=>i>=3 && (/^و\S{3,}/.test(w) || /^(في|من|على|إلى|الى|مع|عن|قبل|بعد|التي|الذي|خلال|حسب|وفق|لدى)$/.test(w)));
+  if(cut>0) out=out.slice(0,cut);
+  out=out.slice(0,6);
+  while(out.length>2 && /^(و|في|من|على|إلى|الى|مع|عن|قبل|بعد|التي|الذي)$/.test(out.at(-1))) out.pop();
+  return out.join(' ');
+}
+function limitFrom(text){
+  const m=String(text).match(/([\d٠-٩][\d٠-٩,٬.]*)\s*(ألف\s*|الف\s*)?(ريال|ر\.س)/);
+  if(!m) return '';
+  return (/(تتجاوز|تزيد|أكثر|اكثر|أعلى|اعلى)/.test(text)?'أكثر من ':'حتى ')+m[0];
+}
+function systemFrom(text){ const m=String(text).match(/(نظام[^،.؛]*)/); return m?m[1].trim():''; }
+
+/* ---------- org structure parsing ---------- */
+function jobKey(t){ return norm(t).replace(/^ال/,''); }
+function splitDuties(cell){
+  return String(cell||'').split(/\n|؛|;|•|▪|(?:^|\s)\d{1,2}\s*[.)-]\s+/).map(x=>cleanDuty(x)).filter(x=>x.length>3);
+}
+function mergeJobs(list){
+  const map=new Map();
+  list.forEach(j=>{ if(!j.title) return; const k=jobKey(j.title); const cur=map.get(k);
+    if(cur){ cur.duties.push(...j.duties); cur.dept=cur.dept||j.dept; cur.reportsTo=cur.reportsTo||j.reportsTo; cur.holder=cur.holder||j.holder; }
+    else map.set(k,{id:'j'+map.size, title:j.title.trim(), dept:(j.dept||'').trim(), reportsTo:(j.reportsTo||'').trim(), holder:(j.holder||'').trim(), duties:[...j.duties]}); });
+  return [...map.values()];
+}
+function parseOrgText(txt){
+  const jobs=[]; let cur=null, mode='';
+  const keyOf = line => { const m=line.match(/^\s*([^:：]{2,30})\s*[:：]\s*(.*)$/); if(!m) return null; return {k:norm(m[1]).replace(/^ال/,''), v:m[2].trim()}; };
+  String(txt||'').split(/\r?\n/).forEach(raw=>{
+    const line=raw.trim(); if(!line){ mode = mode==='duties'?'duties':''; return; }
+    const kv=keyOf(line);
+    if(kv){
+      const k=kv.k;
+      if(/^(مسمي|مسمي الوظيفي|وظيفه|اسم الوظيفه|المسمي الوظيفي)$/.test(k) || k.startsWith('مسمي')){ cur={title:kv.v,dept:'',reportsTo:'',holder:'',duties:[]}; jobs.push(cur); mode=''; return; }
+      if(!cur) return;
+      if(/^(اداره|قسم|وحده|اداره التابع لها)$/.test(k)){ cur.dept=kv.v; return; }
+      if(/^(يرتبط ب|يرتبط بـ|يرتبط|مدير المباشر|رئيس المباشر|يتبع|المرجع الوظيفي|مرجع)$/.test(k)||k.startsWith('يرتبط')||k.includes('مباشر')){ cur.reportsTo=kv.v; return; }
+      if(/^(شاغل|اسم الموظف|موظف)$/.test(k)){ cur.holder=kv.v; return; }
+      if(/(مهام|مسؤوليات|وصف|اوصاف|واجبات)/.test(k)){ mode='duties'; if(kv.v) cur.duties.push(...splitDuties(kv.v)); return; }
+      mode=''; return;
+    }
+    if(cur && mode==='duties'){ const d=cleanDuty(line); if(d.length>3) cur.duties.push(d); }
+  });
+  return mergeJobs(jobs);
+}
+function parseRows(rows){
+  rows=rows.map(r=>r.map(c=>String(c??'').trim())).filter(r=>r.some(Boolean));
+  if(!rows.length) return [];
+  const find=(hdr,tests)=>hdr.findIndex(h=>tests.some(t=>t.test(norm(h))));
+  let hi=-1, col={};
+  for(let i=0;i<Math.min(6,rows.length);i++){
+    const h=rows[i];
+    const title=find(h,[/مسمي/,/^الوظيفه$/,/^الوظيفه /,/اسم الوظيفه/]);
+    const duties=find(h,[/مهام/,/مسؤوليات/,/الوصف/,/اوصاف/,/واجبات/]);
+    if(title>=0 && duties>=0){ hi=i; col={title, duties, dept:find(h,[/اداره/,/قسم/,/وحده/]), rep:find(h,[/يرتبط/,/مباشر/,/يتبع/,/مرجع/]), holder:find(h,[/شاغل/,/اسم الموظف/])}; break; }
+  }
+  if(hi<0){ hi=-1; col={title:0, dept:1, rep:2, duties:3, holder:4}; }
+  const out=[]; let last=null;
+  rows.slice(hi+1).forEach(r=>{
+    const title=r[col.title]||''; const duties=splitDuties(r[col.duties]);
+    if(!title && last){ last.duties.push(...duties); return; }
+    if(!title) return;
+    last={title, dept:col.dept>=0?r[col.dept]:'', reportsTo:col.rep>=0?r[col.rep]:'', holder:col.holder>=0?(r[col.holder]||''):'', duties};
+    out.push(last);
+  });
+  return mergeJobs(out);
+}
+function jobDepth(job, jobs){
+  let d=0, cur=job; const seen=new Set();
+  while(cur && cur.reportsTo && d<12){ const p=jobs.find(j=>jobKey(j.title)===jobKey(cur.reportsTo)); if(!p||seen.has(p.id)) break; seen.add(p.id); d++; cur=p; }
+  return d;
+}
+
+const ORG_EXAMPLE = `المسمى: المدير التنفيذي
+الإدارة: الإدارة التنفيذية
+يرتبط بـ: مجلس الإدارة
+المهام:
+- اعتماد العروض الوظيفية التي تتجاوز رواتبها 15,000 ريال
+- اعتماد الخطة السنوية للتوظيف
+- اعتماد أوامر الشراء التي تزيد على 50,000 ريال
+
+المسمى: مدير الموارد البشرية
+الإدارة: الموارد البشرية
+يرتبط بـ: المدير التنفيذي
+المهام:
+- مراجعة طلبات الاحتياج الوظيفي والتحقق من توافقها مع الميزانية
+- اعتماد إعلانات التوظيف قبل نشرها
+- اعتماد العروض الوظيفية حتى 15,000 ريال
+- متابعة إجراءات التهيئة للموظفين الجدد
+
+المسمى: أخصائي التوظيف
+الإدارة: الموارد البشرية
+يرتبط بـ: مدير الموارد البشرية
+المهام:
+- إعداد إعلانات الوظائف ونشرها في قنوات التوظيف
+- فرز طلبات المتقدمين وإعداد القائمة المختصرة
+- تنسيق مواعيد المقابلات مع المرشحين ولجنة المقابلات
+- إعداد العرض الوظيفي للمرشح المختار
+- إدخال بيانات الموظف الجديد في نظام الموارد البشرية
+
+المسمى: مدير الإدارة الطالبة
+الإدارة: الإدارات التشغيلية
+يرتبط بـ: المدير التنفيذي
+المهام:
+- رفع طلب الاحتياج الوظيفي لإدارته
+- المشاركة في تقييم المرشحين خلال المقابلات
+
+المسمى: المدير المالي
+الإدارة: المالية
+يرتبط بـ: المدير التنفيذي
+المهام:
+- التحقق من توفر الاعتماد المالي للوظائف الجديدة
+- مراجعة أوامر الشراء ومطابقتها مع الميزانية`;
+
+/* ---------- draft generation (rules) ---------- */
+function draftFromRules(){
+  const jobs=S.org.jobs, o=ui.orgOpts;
+  const kws=o.kw.split(/[،,\n]/).map(x=>norm(x).replace(/^ال/,'')).filter(Boolean);
+  let items=[]; let idx=0;
+  jobs.forEach(j=>{
+    if(o.dept && j.dept!==o.dept) return;
+    j.duties.forEach(d=>{ const n=norm(d); if(kws.length && !kws.some(k=>n.includes(k))) return;
+      const st=classify(d); items.push({text:d, job:j, st, depth:jobDepth(j,jobs), idx:idx++, stems:stems(d).filter(w=>!ALL_KW.has(w))}); });
+  });
+  if(!items.length) return [];
+  // stems shared by most items carry no signal
+  const freq={}; items.forEach(it=>new Set(it.stems).forEach(w=>freq[w]=(freq[w]||0)+1));
+  items.forEach(it=>it.sig=it.stems.filter(w=>freq[w]<=Math.max(1,Math.floor(items.length*0.4))));
+  const isCheck = it => it.st.kind==='review'||it.st.kind==='approve';
+  const byStage=(a,b)=> a.st.st-b.st.st || (a.st.kind==='approve' ? b.depth-a.depth : 0) || a.idx-b.idx;
+  const base=items.filter(it=>!isCheck(it)).sort(byStage);
+  const checks=items.filter(isCheck).sort(byStage);
+  const seq=[...base]; const tail={};
+  checks.forEach(c=>{
+    let best=null, score=0;
+    seq.forEach(t=>{ if(isCheck(t)) return; const sc=c.sig.filter(w=>t.sig.includes(w)).length; if(sc>score){ score=sc; best=t; } });
+    if(best){ const anchor=tail[best.idx]||best; const pos=seq.indexOf(anchor)+1; seq.splice(pos,0,c); tail[best.idx]=c; }
+    else { const pos=seq.findIndex(t=>t.st.st>c.st.st); seq.splice(pos<0?seq.length:pos,0,c); }
+  });
+  const steps=[]; let k=0;
+  seq.forEach((it,i)=>{
+    const title=it.job.title; const prev=steps.filter(s=>s.type!=='xor').at(-1);
+    const base={k:'s'+(k++), name:shortName(it.text), source:it.text, r:title, a:'', c:[], i:[], purpose:'', inputs:'', outputs:'', sla:'', limit:'', system:'', yes:'', no:''};
+    if(it.st.kind==='approve'){ base.type='decision'; base.a=title; const up = prev && prev.type==='decision' ? prev.a : prev && prev.r; base.r = up && up!==title ? up : ''; base.limit=limitFrom(it.text); }
+    else if(it.st.kind==='record'){ base.type=/نظام/.test(it.text)?'service':'task'; base.system=systemFrom(it.text); }
+    else base.type='task';
+    steps.push(base);
+    if(it.st.kind==='review' && o.gateways){
+      const obj=cleanDuty(it.text).split(/\s+/).slice(1,4).join(' ').replace(/^من\s+/,'');
+      steps.push({k:'s'+(k++), type:'xor', name:`هل استُوفيت متطلبات ${obj}؟`, source:'', r:title, a:'', c:[], i:[], purpose:'', inputs:'', outputs:'', sla:'', limit:'', system:'', yes:'مستوفاة', no:'غير مستوفاة'});
+    }
+  });
+  steps.forEach(st=>{ if(st.type==='decision' && st.limit && !/ريال/.test(st.name)) st.name += ' ' + st.limit; });
+  return steps;
+}
+
+/* ---------- draft generation (Claude) ---------- */
+async function draftFromAI(){
+  const ns=ui.ai; if(!ns || ui.aiBusy) return;
+  const o=ui.orgOpts; const jobs=S.org.jobs.filter(j=>!o.dept||j.dept===o.dept);
+  ui.aiBusy=true; ui.orgMsg='يحلل Claude الهيكل والأوصاف ويرتب الخطوات…'; render();
+  const titles=jobs.map(j=>j.title);
+  const prompt = `أنت محلل عمليات مؤسسية خبير في الجهات السعودية. لديك الهيكل الوظيفي التالي مع الأوصاف الوظيفية (JSON):
+${JSON.stringify(jobs.map(j=>({المسمى:j.title, الإدارة:j.dept, يرتبط_بـ:j.reportsTo, المهام:j.duties})))}
+
+المطلوب: بناء خطوات «${o.name||'الإجراء'}»${o.kw?` (الكلمات المفتاحية: ${o.kw})`:''} من البداية إلى الإغلاق.
+القواعد:
+1. اعتمد على المهام الواردة في الأوصاف، ولا تضف خطوة إلا إذا لزمت منطقيًا للربط بين خطوتين، وضع لها source فارغًا.
+2. رتّب الخطوات ترتيبًا واقعيًا: إطلاق الطلب، ثم الإعداد، ثم التنفيذ، ثم التقييم، ثم المراجعة، ثم الاعتماد من الأدنى صلاحية إلى الأعلى، ثم التسجيل، ثم المتابعة.
+3. الأنواع المسموحة فقط: task (مهمة)، service (مهمة في نظام آلي)، decision (قرار اعتماد)، xor (بوابة تحقق بعد مراجعة أو تقييم).
+4. r هو المسمى المنفذ وa هو المسمى المعتمد، ويُكتبان حرفيًا من هذه القائمة: ${titles.join(' | ')}.
+5. في decision يكون a صاحب صلاحية الاعتماد وr من يرفع إليه، ولا يكونان الدور نفسه. ضع limit إن ورد سقف مالي.
+6. لكل xor اكتب name سؤالًا، وyes تسمية مسار الاستمرار، وno تسمية مسار الإعادة.
+7. name بصيغة المصدر وبحد أقصى 6 كلمات.
+أعد JSON فقط بهذا الشكل:
+{"purpose":"غرض الإجراء في جملة","scope":"نطاقه في جملة","steps":[{"type":"task","name":"","r":"","a":"","c":[],"i":[],"purpose":"","inputs":"","outputs":"","sla":"","limit":"","yes":"","no":"","source":""}]}`;
+  try{
+    const res = await ns.json(prompt, {modelTier:'default'});
+    const ok=['task','service','decision','xor','sub'];
+    const steps=(res&&Array.isArray(res.steps)?res.steps:[]).filter(s=>s&&s.name).map((s,i)=>({
+      k:'a'+i, type:ok.includes(s.type)?s.type:'task', name:String(s.name).trim(), source:String(s.source||''), r:String(s.r||''), a:String(s.a||''),
+      c:Array.isArray(s.c)?s.c.map(String):[], i:Array.isArray(s.i)?s.i.map(String):[], purpose:String(s.purpose||''), inputs:String(s.inputs||''), outputs:String(s.outputs||''),
+      sla:String(s.sla||''), limit:String(s.limit||''), system:'', yes:String(s.yes||''), no:String(s.no||'')}));
+    if(!steps.length) throw {code:'empty'};
+    ui.draft=steps; ui.draftMeta={purpose:String(res.purpose||''), scope:String(res.scope||''), by:'Claude'};
+    ui.orgMsg=`جهّز Claude مسودة من ${steps.length} خطوة. راجعها ثم اضغط «رسم الخريطة».`;
+  }catch(e){
+    const c=e&&e.code;
+    if(c==='not_granted'){ ui.ai=null; ui.orgMsg='لم يُسمح باستخدام Claude في هذه الصفحة. استخدم التوليد بالقواعد.'; }
+    else if(c==='rate_limited') ui.orgMsg='الطلبات كثيرة الآن، أعد المحاولة بعد قليل.';
+    else ui.orgMsg='تعذر التوليد الذكي هذه المرة. يمكنك استخدام التوليد بالقواعد.';
+  }finally{ ui.aiBusy=false; render(); }
+}
+
+/* ---------- build the map from the draft ---------- */
+function buildFromDraft(){
+  if(!canEdit()){ toast('الرسم يتطلب صلاحية «تعديل» فأعلى'); return; }
+  const draft=(ui.draft||[]).filter(s=>s.name.trim());
+  if(!draft.length){ toast('المسودة فارغة'); return; }
+  snapshot();
+  const o=ui.orgOpts, jobs=(S.org&&S.org.jobs)||[];
+  const name=(o.name||'إجراء جديد').trim(), code=(o.code||S.process.code||'PR-01').trim();
+  if(!o.mergeRoles){ const keep=roleById(S.acting); S.roles = keep?[keep]:[]; S.delegations=[]; }
+  const idByTitle={}; S.roles.forEach(r=>idByTitle[jobKey(r.name)]=r.id);
+  const ensure=t=>{ t=String(t||'').trim(); if(!t) return ''; const k=jobKey(t); if(idByTitle[k]) return idByTitle[k];
+    const j=jobs.find(x=>jobKey(x.title)===k); const id=uid('r'); S.roles.push({id,name:t,users:j?.holder||'',level:'comment'}); idByTitle[k]=id; return id; };
+  const meta=ui.draftMeta||{};
+  Object.assign(S.process,{name, code, owner: S.process.owner && roleById(S.process.owner) ? S.process.owner : ensure(draft.find(s=>s.type==='decision')?.a||draft[0].r),
+    purpose: meta.purpose || `تنظيم مراحل ${name.replace(/^إجراء\s*/,'')} وتحديد المسؤوليات والصلاحيات في كل مرحلة.`,
+    scope: meta.scope || `يشمل المهام الواردة في الأوصاف الوظيفية لكل من: ${list([...new Set(draft.map(s=>s.r).filter(Boolean))])}.`,
+    refs:'الهيكل التنظيمي والأوصاف الوظيفية المعتمدة', status:'draft', lanes:true});
+  S.nodes=[]; S.edges=[];
+  const blank={purpose:'',desc:'',r:'',a:'',c:[],i:[],sla:'',limit:'',limitRef:'',delegable:false,delegDays:'',inputs:'',outputs:'',controls:'',system:'',comments:[]};
+  const mk=(type,props)=>{ const n=Object.assign({},blank,{id:uid('n'),type,x:0,y:0,c:[],i:[],comments:[]},props); n.code=nextCode(type); S.nodes.push(n); return n; };
+  const seq=[mk('start',{name:'بدء '+name})];
+  draft.forEach(s=>{
+    const n=mk(s.type,{name:s.name.trim(), desc:s.source?('من الوصف الوظيفي: '+s.source):'', r:ensure(s.r), a:ensure(s.a), c:s.c.map(ensure).filter(Boolean), i:s.i.map(ensure).filter(Boolean),
+      purpose:s.purpose, inputs:s.inputs, outputs:s.outputs, sla:s.sla, limit:s.limit, system:s.system, controls: s.type==='decision'?'فصل المهام: من يرفع القرار لا يعتمده':''});
+    n._yes=s.yes; n._no=s.no; seq.push(n);
+  });
+  seq.push(mk('end',{name:'اكتمال '+name}));
+  // flows
+  const add=(a,b,label)=>{ if(a&&b&&a!==b&&!S.edges.some(e=>e.from===a.id&&e.to===b.id)) S.edges.push({id:uid('e'),from:a.id,to:b.id,label:label||''}); };
+  const isWork=n=>['task','service','sub'].includes(n.type);
+  seq.forEach((n,i)=>{
+    const next=seq[i+1]; if(!next) return;
+    add(n,next, n.type==='xor'?(n._yes||'مستوفاة'):n.type==='decision'?'معتمد':'');
+    if(n.type==='xor'){ let j=i-2; while(j>0 && !isWork(seq[j])) j--; const back = j>0 ? seq[j] : (i>1 && isWork(seq[i-1]) ? seq[i-1] : null); if(back) add(n,back,n._no||'غير مستوفاة'); }
+    if(n.type==='decision'){ let j=i-1; while(j>0 && !isWork(seq[j])) j--; if(j>0) add(n,seq[j],'غير معتمد'); }
+  });
+  seq.forEach(n=>{ delete n._yes; delete n._no; });
+  // layout: right-to-left columns, rows = lanes
+  const N=seq.length;
+  seq.forEach((n,i)=>{ n.x=120+(N-1-i)*185; });
+  S.process.laneOrder=[]; arrangeLanes();
+  ['m2','m3','m4','m5'].forEach(id=>{ S.method[id]={done:true, note:(S.method[id]&&S.method[id].note)||`أُنجز آليًا من الهيكل الوظيفي (${meta.by==='Claude'?'توليد ذكي':'قواعد التصنيف'})`}; });
+  ui.sel=null; ui.selEdge=null; ui.tab='editor';
+  commit('توليد خريطة من الهيكل الوظيفي', `${name} (${draft.length} خطوة)`);
+  render(); toast(`رُسم «${name}» من ${draft.length} خطوة. يمكنك التراجع إن أردت.`);
+}
+
+/* ---------- file intake ---------- */
+const LIBS={XLSX:'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js', mammoth:'https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js'};
+function loadLib(g){ if(window[g]) return Promise.resolve(window[g]); return new Promise((res,rej)=>{ const s=document.createElement('script'); s.src=LIBS[g]; s.onload=()=>window[g]?res(window[g]):rej(new Error('lib')); s.onerror=()=>rej(new Error('lib')); document.head.appendChild(s); }); }
+async function handleOrgFile(file){
+  if(!file) return;
+  const ext=(file.name.split('.').pop()||'').toLowerCase();
+  ui.orgMsg='جارٍ قراءة «'+file.name+'»…'; const m=$('#orgMsg'); if(m) m.textContent=ui.orgMsg;
+  let jobs=[];
+  try{
+    if(['xlsx','xls','csv'].includes(ext)){
+      const X=await loadLib('XLSX'); const wb=X.read(await file.arrayBuffer(),{type:'array'});
+      wb.SheetNames.forEach(n=>{ jobs=jobs.concat(parseRows(X.utils.sheet_to_json(wb.Sheets[n],{header:1,defval:''}))); });
+      jobs=mergeJobs(jobs);
+    } else if(ext==='docx'){
+      const M=await loadLib('mammoth'); const buf=await file.arrayBuffer();
+      const {value:html}=await M.convertToHtml({arrayBuffer:buf});
+      const doc=new DOMParser().parseFromString(html,'text/html');
+      doc.querySelectorAll('table').forEach(t=>{ const rows=[...t.rows].map(r=>[...r.cells].map(c=>{ const ps=c.querySelectorAll('p,li'); return ps.length?[...ps].map(p=>p.textContent).join('\n'):c.textContent; })); jobs=jobs.concat(parseRows(rows)); });
+      if(!jobs.length){ const {value:text}=await M.extractRawText({arrayBuffer:buf.slice(0)}); jobs=parseOrgText(text); ui.orgText=text; }
+      jobs=mergeJobs(jobs);
+    } else { const text=await file.text(); ui.orgText=text; jobs=parseOrgText(text); }
+  }catch(e){ ui.orgMsg='تعذر قراءة الملف. جرّب Excel أو Word أو انسخ النص في المربع.'; render(); return; }
+  if(!jobs.length){ ui.orgMsg='لم أجد وظائف في الملف. تأكد من وجود أعمدة «المسمى الوظيفي» و«المهام والمسؤوليات»، أو استخدم القالب.'; render(); return; }
+  S.org={jobs, file:file.name}; ui.draft=null;
+  ui.orgMsg=`قُرئ ${jobs.length} وظيفة و${jobs.reduce((a,j)=>a+j.duties.length,0)} مهمة من «${file.name}».`;
+  commit('استيراد الهيكل الوظيفي', file.name); render();
+}
+async function downloadTemplate(){
+  try{
+    const X=await loadLib('XLSX'); const ex=parseOrgText(ORG_EXAMPLE);
+    const rows=[['المسمى الوظيفي','الإدارة','يرتبط بـ','المهام والمسؤوليات (مهمة في كل سطر)','الشاغل (اختياري)'], ...ex.map(j=>[j.title,j.dept,j.reportsTo,j.duties.join('\n'),''])];
+    const ws=X.utils.aoa_to_sheet(rows); ws['!cols']=[{wch:24},{wch:22},{wch:22},{wch:70},{wch:18}];
+    const wb=X.utils.book_new(); X.utils.book_append_sheet(wb,ws,'الهيكل الوظيفي'); wb.Workbook={Views:[{RTL:true}]};
+    const buf=X.write(wb,{bookType:'xlsx',type:'array'});
+    await saveFile('org-structure-template.xlsx', buf, 'تنزيل قالب الهيكل الوظيفي');
+  }catch(_){ toast('تعذر تجهيز القالب'); }
+}
+
+/* ---------- views: org & methodology ---------- */
+const KIND_LABEL={start:'إطلاق',prep:'إعداد',exec:'تنفيذ',assess:'تقييم',review:'مراجعة',approve:'اعتماد',record:'تسجيل',follow:'متابعة'};
+function kindClass(k){ return k==='approve'?'decision':k==='review'?'xor':'task'; }
+function orgTree(jobs){
+  const kids=j=>jobs.filter(x=>x!==j && x.reportsTo && jobKey(x.reportsTo)===jobKey(j.title));
+  const roots=jobs.filter(j=>!jobs.some(p=>p!==j && j.reportsTo && jobKey(p.title)===jobKey(j.reportsTo)));
+  const seen=new Set();
+  const li=j=>{ if(seen.has(j.id)) return ''; seen.add(j.id); const ch=kids(j);
+    return `<li><details><summary><b>${esc(j.title)}</b>${j.dept?`<small>${esc(j.dept)}</small>`:''}<small>· ${j.duties.length} مهام</small>${j.holder?`<small>· ${esc(j.holder)}</small>`:''}</summary>
+      <ol>${j.duties.map(d=>{ const st=classify(d); return `<li><span class="kind ${kindClass(st.kind)}">${KIND_LABEL[st.kind]}</span> ${esc(d)}</li>`; }).join('')}</ol></details>
+      ${ch.length?`<ul class="tree">${ch.map(li).join('')}</ul>`:''}</li>`; };
+  return `<ul class="tree">${(roots.length?roots:jobs).map(li).join('')}</ul>`;
+}
+function draftTable(){
+  if(!ui.draft) return `<p class="empty">اختر الإجراء والكلمات المفتاحية، ثم اضغط «توليد بالقواعد»${ui.ai?' أو «توليد ذكي»':''} لتظهر المسودة هنا.</p>`;
+  if(!ui.draft.length) return `<p class="empty">لم تطابق أي مهمة الكلمات المفتاحية. وسّع الكلمات أو اتركها فارغة لاستخدام كل المهام.</p>`;
+  const titles=[...new Set([...(S.org?.jobs||[]).map(j=>j.title), ...S.roles.map(r=>r.name), ...ui.draft.flatMap(s=>[s.r,s.a])].filter(Boolean))];
+  const opts=v=>`<option value="">—</option>`+titles.map(t=>`<option ${t===v?'selected':''}>${esc(t)}</option>`).join('');
+  const types=[['task','مهمة'],['service','مهمة نظام'],['decision','قرار'],['xor','بوابة تحقق'],['sub','عملية فرعية']];
+  const rows=ui.draft.map((s,i)=>`<tr>
+    <td style="text-align:center">${i+1}</td>
+    <td><select id="dt_${s.k}" data-di="${i}" data-dk="type" aria-label="النوع">${types.map(([k,l])=>`<option value="${k}" ${s.type===k?'selected':''}>${l}</option>`).join('')}</select></td>
+    <td><input id="dn_${s.k}" data-di="${i}" data-dk="name" value="${esc(s.name)}" aria-label="الخطوة" style="min-width:180px"></td>
+    <td><select id="dr_${s.k}" data-di="${i}" data-dk="r" aria-label="المنفذ">${opts(s.r)}</select></td>
+    <td><select id="da_${s.k}" data-di="${i}" data-dk="a" aria-label="المعتمد">${opts(s.a)}</select></td>
+    <td class="src">${esc(s.source||(s.type==='xor'?'بوابة مضافة بعد المراجعة':'—'))}${s.limit?`<br><b>السقف:</b> ${esc(s.limit)}`:''}</td>
+    <td style="white-space:nowrap"><button class="mv" data-dmv="${i}" data-dir="-1" aria-label="لأعلى">▲</button> <button class="mv" data-dmv="${i}" data-dir="1" aria-label="لأسفل">▼</button> <button class="mv" data-ddel="${i}" aria-label="حذف">✕</button></td></tr>`).join('');
+  return `<div class="tablewrap"><table class="grid draft"><tr><th>#</th><th>النوع</th><th>الخطوة</th><th>المنفذ (R)</th><th>المعتمد (A)</th><th>المصدر في الوصف الوظيفي</th><th>ترتيب</th></tr>${rows}</table></div>
+    <div class="tools"><button class="btn" data-act="draftAdd">إضافة خطوة</button><span class="spacer" style="flex:1"></span>
+    <button class="btn primary" data-act="draftBuild" ${canEdit()?'':'disabled'}>رسم الخريطة على حارات الأدوار</button></div>
+    <p class="hint" style="margin:0">الرسم يستبدل الخريطة الحالية، ويمكنك التراجع منه. ${canEdit()?'':'يتطلب صلاحية «تعديل» فأعلى.'}</p>`;
+}
+function orgView(){
+  if(ui.orgText===null) ui.orgText=ORG_EXAMPLE;
+  if(!S.org) S.org={example:true, jobs:parseOrgText(ORG_EXAMPLE)};
+  const jobs=S.org.jobs, o=ui.orgOpts;
+  const depts=[...new Set(jobs.map(j=>j.dept).filter(Boolean))];
+  const nD=jobs.reduce((a,j)=>a+j.duties.length,0);
+  const st1=jobs.length>0, st2=!!(ui.draft&&ui.draft.length);
+  return `<div class="page">
+    <div><h2>رسم الإجراء من الهيكل الوظيفي</h2><p class="lead">أرفق الهيكل الوظيفي مع الأوصاف، فيستخلص النظام المهام المتعلقة بالإجراء، ويصنّفها إلى مهام وقرارات وبوابات تحقق، ويسند كل خطوة لصاحب الوظيفة، ثم يرسمها على حارات الأدوار. تراجع المسودة وتعدّلها قبل الرسم.</p></div>
+    <div class="steps3">
+      <div class="stepcard ${st1?'done':''}"><span class="num">1</span><div><b>أرفق الهيكل والأوصاف</b><span class="hint">Excel أو Word أو نص ملصق</span></div></div>
+      <div class="stepcard ${st2?'done':''}"><span class="num">2</span><div><b>ولّد المسودة وراجعها</b><span class="hint">بالقواعد أو بمساعدة Claude</span></div></div>
+      <div class="stepcard"><span class="num">3</span><div><b>ارسم الخريطة</b><span class="hint">حارات حسب الأدوار ومصفوفة صلاحيات جاهزة</span></div></div>
+    </div>
+    <div class="cols">
+      <div class="panel"><h3>الهيكل الوظيفي والأوصاف</h3>
+        <div class="drop" id="orgDrop"><p style="margin:0 0 8px">اسحب الملف هنا: Excel أو CSV أو Word أو نص</p><label class="btn" for="orgFile">اختيار ملف</label><input type="file" id="orgFile" accept=".xlsx,.xls,.csv,.docx,.txt" hidden></div>
+        <div class="tools"><button class="btn" data-act="orgTemplate">تنزيل قالب Excel</button><button class="btn" data-act="orgExample">تحميل المثال</button></div>
+        <div class="field"><label for="orgText">أو الصق النص بهذه الصيغة: المسمى، الإدارة، يرتبط بـ، ثم المهام سطرًا سطرًا</label><textarea id="orgText" rows="11">${esc(ui.orgText)}</textarea></div>
+        <div class="tools"><button class="btn primary" data-act="orgParse">قراءة النص</button><span class="hint" id="orgMsg">${esc(ui.orgMsg)}</span></div>
+      </div>
+      <div class="panel"><h3>الهيكل كما قُرئ ${S.org.example?'<span class="kind task">مثال</span>':''}</h3>
+        <p class="hint" style="margin:0">${jobs.length} وظيفة · ${nD} مهمة${S.org.file?` · من «${esc(S.org.file)}»`:''}. افتح أي وظيفة لترى تصنيف مهامها.</p>
+        <div style="max-height:430px;overflow:auto">${orgTree(jobs)}</div>
+      </div>
+    </div>
+    <div class="panel"><h3>مسودة خطوات الإجراء</h3>
+      <div class="cols" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px">
+        <div class="field"><label for="oo_name">اسم الإجراء</label><input id="oo_name" data-oo="name" value="${esc(o.name)}"></div>
+        <div class="field"><label for="oo_code">رمز الإجراء</label><input id="oo_code" data-oo="code" value="${esc(o.code)}" dir="ltr"></div>
+        <div class="field" style="grid-column:span 2"><label for="oo_kw">كلمات مفتاحية لاختيار المهام (يفصل بينها فاصلة)</label><input id="oo_kw" data-oo="kw" value="${esc(o.kw)}" placeholder="اتركها فارغة لاستخدام كل المهام"></div>
+        <div class="field"><label for="oo_dept">الإدارة</label><select id="oo_dept" data-oo="dept"><option value="">كل الإدارات</option>${depts.map(d=>`<option ${o.dept===d?'selected':''}>${esc(d)}</option>`).join('')}</select></div>
+      </div>
+      <div class="tools"><label class="chk"><input type="checkbox" id="oo_gw" data-oo="gateways" ${o.gateways?'checked':''}> إضافة بوابة تحقق بعد كل مراجعة</label>
+        <label class="chk"><input type="checkbox" id="oo_merge" data-oo="mergeRoles" ${o.mergeRoles?'checked':''}> دمج الوظائف مع الأدوار الحالية</label></div>
+      <div class="tools"><button class="btn primary" data-act="draftRules">توليد بالقواعد</button>
+        ${ui.ai?`<button class="btn" data-act="draftAI" ${ui.aiBusy?'disabled':''}>${ui.aiBusy?'Claude يعمل…':'توليد ذكي بـ Claude'}</button>`:''}
+        <span class="hint">${ui.ai?'التوليد الذكي يفهم السياق ويرتب أدق، والتوليد بالقواعد فوري ويعمل دون اتصال.':'التوليد بالقواعد يطبق جدول التصنيف في «منهجية البناء».'}</span></div>
+      ${draftTable()}
+    </div></div>`;
+}
+
+const METHOD=[
+  {id:'m1', title:'تحديد النطاق والهدف', desc:'تحديد بداية الإجراء ونهايته ومالكه، وموقعه في سلسلة القيمة، والهدف الاستراتيجي الذي يخدمه.', out:'بطاقة تعريف الإجراء'},
+  {id:'m2', title:'جمع المدخلات المرجعية', desc:'الهيكل التنظيمي، وبطاقات الوصف الوظيفي، واللوائح والسياسات، ولائحة الصلاحيات المالية والإدارية، والنماذج المستخدمة.', out:'ملف مرجعي معتمد'},
+  {id:'m3', title:'استخلاص المهام من الأوصاف الوظيفية', desc:'اختيار مهام كل وظيفة المتعلقة بالإجراء بالكلمات المفتاحية، واستبعاد ما لا يخصه.', out:'قائمة المهام المرشحة'},
+  {id:'m4', title:'تصنيف المهام إلى عناصر', desc:'تحويل كل مهمة إلى عنصر في الخريطة بحسب فعلها (جدول قواعد التصنيف أدناه).', out:'مهام وقرارات وبوابات ومهام نظام'},
+  {id:'m5', title:'ترتيب التسلسل', desc:'ترتيب الخطوات وفق دورة حياة الطلب، وربط كل مراجعة أو اعتماد بالمهمة التي تخصها مباشرة.', out:'مسودة الخريطة'},
+  {id:'m6', title:'إسناد الأدوار والصلاحيات', desc:'تحديد المنفذ والمعتمد ومن يُستشار ومن يُبلَّغ لكل عنصر، وسقوف القرارات من لائحة الصلاحيات، وقابلية التفويض ومدته.', out:'مصفوفة الصلاحيات'},
+  {id:'m7', title:'إضافة نقاط القرار والضوابط', desc:'بوابات التحقق ومسارات الإعادة، ونقاط الضبط الرقابي، ومنع تعارض المهام بين الرافع والمعتمد.', out:'خريطة مضبوطة رقابيًا'},
+  {id:'m8', title:'التحقق الآلي', desc:'اجتياز قواعد التحقق في النظام: بداية ونهاية، ولا عناصر معزولة، ولكل قرار معتمد وسقف، ولا تعارض في فصل المهام.', out:'خريطة بلا ملاحظات تحقق'},
+  {id:'m9', title:'المراجعة مع ملاك العملية', desc:'ورشة مع المنفذين والمعتمدين لتأكيد الواقع الفعلي لا المفترض، وتسجيل الملاحظات تعليقاتٍ على العناصر.', out:'ملاحظات معالجة'},
+  {id:'m10', title:'الاعتماد والنشر', desc:'حفظ إصدار واعتماده من صاحب الصلاحية، ثم إصدار دليل الإجراء بصيغتي Word وPDF.', out:'دليل معتمد ونافذ'},
+  {id:'m11', title:'المراجعة الدورية', desc:'مراجعة الإجراء سنويًا، أو عند تغيّر الهيكل التنظيمي أو اللوائح أو لائحة الصلاحيات.', out:'إصدار محدّث'}
+];
+const RULES=[
+  ['اعتماد، الموافقة، إقرار، توقيع، البت','قرار (اعتماد)','صاحب الوظيفة معتمد (A)، ومن قبله في التسلسل يرفع القرار (R)، ويُستخرج السقف المالي من النص إن ورد','اعتماد العروض الوظيفية حتى 15,000 ريال'],
+  ['مراجعة، تدقيق، التحقق، التأكد، فحص','مهمة مراجعة تليها بوابة تحقق','صاحب الوظيفة منفذ (R)، ومسار «غير مستوفاة» يعود إلى الخطوة التي رُوجعت','مراجعة طلبات الاحتياج الوظيفي'],
+  ['إدخال، تسجيل، تحديث (في نظام)','مهمة نظام','صاحب الوظيفة منفذ (R)، ويُسجَّل اسم النظام','إدخال بيانات الموظف الجديد في نظام الموارد البشرية'],
+  ['رفع، طلب، تقديم','مهمة إطلاق في أول الإجراء','صاحب الوظيفة منفذ (R)','رفع طلب الاحتياج الوظيفي'],
+  ['إعداد، تخطيط، تنفيذ، تنسيق، فرز، نشر، تقييم','مهمة','صاحب الوظيفة منفذ (R)','فرز طلبات المتقدمين'],
+  ['متابعة، إبلاغ، إشعار، تهيئة','مهمة ختامية','صاحب الوظيفة منفذ (R)','متابعة إجراءات التهيئة']
+];
+const LIFECYCLE=['الإطلاق: رفع الطلب أو تقديمه','الإعداد والتخطيط','التنفيذ','التقييم','المراجعة والتحقق','الاعتماد، من الأدنى صلاحية إلى الأعلى','التسجيل في الأنظمة','المتابعة والإبلاغ'];
+const CODING=[['T','مهمة'],['D','قرار (اعتماد)'],['G','بوابة'],['S','مهمة نظام'],['P','عملية فرعية'],['F','مستند أو نموذج'],['E','حدث بداية أو نهاية']];
+const METHOD_INTRO='بُني هذا الإجراء وفق منهجية من إحدى عشرة مرحلة، تبدأ من الهيكل التنظيمي والأوصاف الوظيفية المعتمدة، فتُستخلص المهام وتُصنَّف وتُرتَّب، ثم تُسند الصلاحيات وتُضاف الضوابط، ويُتحقق من الخريطة آليًا قبل مراجعتها مع ملاك العملية واعتمادها.';
+function methodView(){
+  const ed=canEdit(); const done=METHOD.filter(m=>S.method[m.id]&&S.method[m.id].done).length; const pct=Math.round(done/METHOD.length*100);
+  const iss=issues().length;
+  return `<div class="page">
+    <div><h2>منهجية بناء الإجراءات</h2><p class="lead">${METHOD_INTRO} تُتابع هنا مراحل بناء «${esc(S.process.name)}»، وتظهر المنهجية وحالتها في الدليل المُصدَّر.</p></div>
+    <div class="panel"><div class="tools" style="justify-content:space-between"><b>${done} من ${METHOD.length} مراحل مكتملة</b><span class="hint">${iss?`التحقق الآلي: ${iss} ملاحظة قائمة`:'التحقق الآلي: الخريطة بلا ملاحظات'}</span></div><div class="progress" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><span style="width:${pct}%"></span></div></div>
+    <div class="method">${METHOD.map((m,i)=>{ const st=S.method[m.id]||{}; return `<div class="mstage ${st.done?'done':''}"><span class="num">${i+1}</span><h4>${m.title}</h4><p>${m.desc} <b>المخرج:</b> ${m.out}.</p>
+      <div class="mfoot"><label class="chk"><input type="checkbox" id="md_${m.id}" data-mdone="${m.id}" ${st.done?'checked':''} ${ed?'':'disabled'}> مكتملة</label><input type="text" id="mn_${m.id}" data-mnote="${m.id}" value="${esc(st.note||'')}" placeholder="ملاحظة أو مرجع (اختياري)" ${ed?'':'disabled'} aria-label="ملاحظة المرحلة ${i+1}"></div></div>`; }).join('')}</div>
+    <div class="panel"><h3>قواعد تصنيف المهام</h3><p class="hint" style="margin:0">يقرأ النظام الفعل الذي تبدأ به المهمة في الوصف الوظيفي، ويحوّلها إلى العنصر المقابل.</p>
+      <div class="tablewrap"><table class="grid"><tr><th>الفعل في الوصف الوظيفي</th><th>العنصر في الخريطة</th><th>الإسناد الافتراضي</th><th>مثال</th></tr>${RULES.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</table></div></div>
+    <div class="cols">
+      <div class="panel"><h3>قاعدة ترتيب التسلسل</h3><ol style="margin:0;padding-inline-start:20px">${LIFECYCLE.map(x=>`<li>${x}</li>`).join('')}</ol><p class="hint" style="margin:0">كل مراجعة أو اعتماد يُوضع مباشرة بعد المهمة التي تشترك معه في موضوعها.</p></div>
+      <div class="panel"><h3>قاعدة الترميز</h3><p class="hint" style="margin:0">[رمز الإجراء]-[نوع العنصر][رقم تسلسلي]، مثل <span class="code">HR-02-D01</span></p>
+        <div class="tablewrap"><table class="grid"><tr><th>الرمز</th><th>نوع العنصر</th></tr>${CODING.map(([a,b])=>`<tr><td class="code">${a}</td><td>${b}</td></tr>`).join('')}</table></div></div>
+    </div></div>`;
+}
+
+document.addEventListener('dragover', e=>{ const z=e.target.closest && e.target.closest('#orgDrop'); if(z){ e.preventDefault(); z.classList.add('over'); } });
+document.addEventListener('dragleave', e=>{ const z=e.target.closest && e.target.closest('#orgDrop'); if(z) z.classList.remove('over'); });
+document.addEventListener('drop', e=>{ const z=e.target.closest && e.target.closest('#orgDrop'); if(z){ e.preventDefault(); z.classList.remove('over'); const f=e.dataTransfer.files&&e.dataTransfer.files[0]; if(f) handleOrgFile(f); } });
+
 /* ---------- boot ---------- */
 render();
+if(window.claude && window.claude.use){ window.claude.use('sample').then(ns=>{ if(ns){ ui.ai=ns; if(ui.tab==='org') render(); } }).catch(()=>{}); }
 })();
 </script>
 
