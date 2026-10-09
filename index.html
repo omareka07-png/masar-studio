@@ -1,0 +1,984 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="استوديو مَسار: رسم العمليات المؤسسية وتحديد الصلاحيات وتوليد الأدلة بصيغتي Word وPDF.">
+<style>[hidden]{display:none!important}body{margin:0}img{max-width:100%}</style>
+<title>استوديو مَسار للعمليات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Noto+Kufi+Arabic:wght@600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+/* Layout: app shell — top bar with tabs; editor = palette | canvas | properties; other tabs are full-width work surfaces */
+:root{
+  --bg:#f2f5f4; --surface:#ffffff; --surface-2:#e9efed; --ink:#16222a; --muted:#56666d; --line:#cdd8d6;
+  --accent:#0d6b63; --accent-ink:#ffffff; --accent-soft:#dcefeb;
+  --decision:#a86200; --decision-soft:#fff0d4; --gw:#3c5a8a; --gw-soft:#e5ecf8;
+  --good:#2b7a4b; --bad:#b42318; --bad-soft:#fde6e3; --sel:#2a5bd7;
+  --grid:#dfe7e5;
+  --f-ui:"IBM Plex Sans Arabic", "Segoe UI", Tahoma, sans-serif;
+  --f-display:"Noto Kufi Arabic", "IBM Plex Sans Arabic", Tahoma, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1719; --surface:#162125; --surface-2:#1d2a2f; --ink:#e6eeec; --muted:#9aacab; --line:#2c3c41;
+  --accent:#3fb3a6; --accent-ink:#06201d; --accent-soft:#173a37;
+  --decision:#f0a64a; --decision-soft:#3a2a12; --gw:#8fb0e6; --gw-soft:#1c2a40;
+  --good:#5cc489; --bad:#ff7b6b; --bad-soft:#3a1916; --sel:#7ea2ff; --grid:#1c282c; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1719; --surface:#162125; --surface-2:#1d2a2f; --ink:#e6eeec; --muted:#9aacab; --line:#2c3c41;
+  --accent:#3fb3a6; --accent-ink:#06201d; --accent-soft:#173a37;
+  --decision:#f0a64a; --decision-soft:#3a2a12; --gw:#8fb0e6; --gw-soft:#1c2a40;
+  --good:#5cc489; --bad:#ff7b6b; --bad-soft:#3a1916; --sel:#7ea2ff; --grid:#1c282c; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:14px;line-height:1.6}
+.app{display:flex;flex-direction:column;min-height:100%}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--sel);outline-offset:2px}
+
+/* top bar */
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:env(safe-area-inset-top,0px);z-index:20}
+.brand{display:flex;align-items:baseline;gap:10px;min-width:0}
+.brand b{font-family:var(--f-display);font-size:20px;color:var(--accent);letter-spacing:0}
+.brand span{color:var(--muted);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tabs{display:flex;gap:2px;flex-wrap:wrap}
+.tab{border:0;background:none;padding:7px 12px;border-radius:6px;color:var(--muted);font-weight:500}
+.tab[aria-selected="true"]{background:var(--accent-soft);color:var(--ink);font-weight:600}
+.acting{margin-inline-start:auto;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.acting select{padding:5px 8px;border:1px solid var(--line);border-radius:6px;background:var(--surface)}
+.lvl{font-size:11.5px;padding:2px 8px;border-radius:99px;background:var(--surface-2);color:var(--ink);white-space:nowrap}
+
+/* process bar */
+.pbar{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;padding:8px 16px;border-bottom:1px solid var(--line);background:var(--bg)}
+.pbar .pname{font-family:var(--f-display);font-size:15px;font-weight:600}
+.code{font-family:var(--f-mono);font-size:12px;color:var(--muted);direction:ltr;unicode-bidi:isolate}
+.status{font-size:12px;padding:2px 10px;border-radius:99px;font-weight:600}
+.status.draft{background:var(--decision-soft);color:var(--decision)}
+.status.approved{background:var(--accent-soft);color:var(--accent)}
+.pbar .spacer{flex:1}
+.btn{border:1px solid var(--line);background:var(--surface);padding:6px 12px;border-radius:6px;font-size:13px;font-weight:500;display:inline-flex;align-items:center;gap:6px}
+.btn:hover:not(:disabled){border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.danger{color:var(--bad)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.search{padding:6px 10px;border:1px solid var(--line);border-radius:6px;background:var(--surface);min-width:0;width:200px}
+
+/* editor */
+.editor{display:grid;grid-template-columns:150px minmax(0,1fr) 340px;flex:1;min-height:520px;height:calc(100vh - 120px)}
+.palette{border-inline-end:1px solid var(--line);background:var(--surface);padding:12px 10px;display:flex;flex-direction:column;gap:6px;overflow:auto}
+.palette h4,.side h4{margin:4px 2px 4px;font-size:11.5px;color:var(--muted);font-weight:600;letter-spacing:.02em}
+.pal{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:6px 8px;font-size:13px;text-align:start;user-select:none}
+.pal:hover:not(:disabled){border-color:var(--accent);background:var(--accent-soft)}
+.pal svg{flex:none}
+.pal:disabled{opacity:.45}
+.canvaswrap{position:relative;overflow:auto;background:var(--bg);min-width:0}
+#canvas{display:block;touch-action:none}
+.zoom{position:sticky;bottom:12px;display:flex;gap:4px;margin:-48px 12px 12px auto;width:max-content;z-index:5}
+.zoom .btn{padding:4px 10px;background:var(--surface)}
+.side{border-inline-start:1px solid var(--line);background:var(--surface);overflow:auto;padding:12px 14px 24px;display:flex;flex-direction:column;gap:12px}
+.seg{display:flex;gap:2px;background:var(--surface-2);padding:3px;border-radius:7px}
+.seg button{flex:1;border:0;background:none;padding:5px 4px;border-radius:5px;font-size:12.5px;color:var(--muted)}
+.seg button[aria-selected="true"]{background:var(--surface);color:var(--ink);font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:12px;color:var(--muted);font-weight:500}
+.field input,.field select,.field textarea{border:1px solid var(--line);border-radius:6px;padding:6px 9px;background:var(--bg);width:100%;min-width:0}
+.field textarea{resize:vertical;min-height:64px;line-height:1.6}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chk{display:flex;align-items:center;gap:8px;font-size:13px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);border-radius:99px;padding:2px 10px;font-size:12px;background:var(--bg)}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink)}
+.autotext{background:var(--accent-soft);border-radius:8px;padding:12px;font-size:13.5px;line-height:1.9;white-space:pre-wrap}
+.hint{font-size:12.5px;color:var(--muted)}
+.empty{color:var(--muted);font-size:13px;padding:8px 2px}
+.issues{display:flex;flex-direction:column;gap:6px}
+.issue{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;padding:7px 9px;border-radius:6px;background:var(--bad-soft);color:var(--ink);border:0;text-align:start}
+.issue::before{content:"";flex:none;width:7px;height:7px;border-radius:50%;background:var(--bad);margin-top:7px}
+.issue.ok{background:var(--accent-soft)}
+.issue.ok::before{background:var(--good)}
+.comment{border-inline-start:3px solid var(--line);padding:4px 10px;font-size:13px}
+.comment small{display:block;color:var(--muted);font-size:11.5px}
+.typebadge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:2px 10px;border-radius:99px;background:var(--surface-2)}
+
+/* pages */
+.page{padding:20px 16px 48px;max-width:1280px;width:100%;margin-inline:auto;display:flex;flex-direction:column;gap:18px}
+.page h2{font-family:var(--f-display);font-size:19px;margin:0;text-wrap:balance}
+.page h3{font-size:15px;margin:0}
+.lead{color:var(--muted);margin:0;max-width:70ch}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
+table.grid{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+table.grid th,table.grid td{border-bottom:1px solid var(--line);padding:7px 9px;text-align:start;vertical-align:middle}
+table.grid th{background:var(--surface-2);font-weight:600;font-size:12px;color:var(--muted);white-space:nowrap;position:sticky;top:0}
+table.grid tr:last-child td{border-bottom:0}
+table.grid td input,table.grid td select,table.grid td textarea{width:100%;border:1px solid var(--line);border-radius:5px;padding:4px 7px;background:var(--bg);min-width:90px}
+.raci{width:34px;height:28px;border:1px dashed var(--line);border-radius:5px;background:none;font-weight:700;font-family:var(--f-mono)}
+.raci.R{background:var(--accent);color:var(--accent-ink);border:0}
+.raci.A{background:var(--decision);color:#fff;border:0}
+.raci.C{background:var(--gw-soft);color:var(--gw);border:1px solid var(--gw)}
+.raci.I{background:var(--surface-2);color:var(--muted);border:1px solid var(--line)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12.5px;color:var(--muted);align-items:center}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
+.yes{color:var(--good);font-weight:700}
+.no{color:var(--muted)}
+.warncell{color:var(--bad);font-size:12px}
+.guide{display:grid;grid-template-columns:300px minmax(0,1fr);gap:18px;align-items:start}
+
+/* paper preview */
+.paperwrap{overflow-x:auto;background:var(--surface-2);border-radius:10px;padding:18px}
+.paper{background:#fff;color:#1b2329;width:760px;max-width:none;margin-inline:auto;padding:44px 48px;font-family:var(--f-ui);font-size:13px;line-height:1.85;box-shadow:0 2px 10px rgba(0,0,0,.12);letter-spacing:0}
+.paper h1{font-family:var(--f-display);font-size:24px;color:#0d6b63;margin:0 0 4px}
+.paper h2{font-family:var(--f-display);font-size:16px;color:#0d6b63;margin:26px 0 8px;padding-bottom:4px;border-bottom:1.5px solid #0d6b63}
+.paper h3{font-size:14px;margin:16px 0 4px}
+.paper p{margin:0 0 6px}
+.paper table{border-collapse:collapse;width:100%;font-size:12px;margin:6px 0 10px}
+.paper th,.paper td{border:1px solid #b9c6c4;padding:5px 7px;text-align:right;vertical-align:top}
+.paper th{background:#e3efed;font-weight:600}
+.paper .meta td:first-child{background:#f2f6f5;width:28%;font-weight:600}
+.paper img{max-width:100%;border:1px solid #d5dedd;margin:8px 0}
+.paper .pcode{font-family:var(--f-mono);font-size:11px;color:#56666d;direction:ltr;unicode-bidi:isolate}
+.paper .cover{border-bottom:3px solid #0d6b63;padding-bottom:14px;margin-bottom:8px}
+.paper .pb{page-break-before:always}
+
+/* toast */
+.toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));inset-inline-start:50%;transform:translateX(50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:8px;font-size:13px;z-index:50;max-width:calc(100% - 32px)}
+.ro-note{background:var(--decision-soft);color:var(--ink);font-size:12.5px;padding:8px 10px;border-radius:6px}
+
+/* SVG classes (screen) */
+.n-label{font-family:var(--f-ui);font-size:13px;fill:var(--ink)}
+.n-sub{font-family:var(--f-ui);font-size:11px;fill:var(--muted)}
+.n-code{font-family:var(--f-mono);font-size:10.5px;fill:var(--muted)}
+.e-label{font-family:var(--f-ui);font-size:11.5px;fill:var(--ink)}
+.node{cursor:grab}
+.node.dim{opacity:.28}
+.edge-hit{cursor:pointer}
+
+@media (max-width:980px){
+  .editor{grid-template-columns:1fr;height:auto}
+  .palette{flex-direction:row;flex-wrap:wrap;border-inline-end:0;border-bottom:1px solid var(--line)}
+  .palette h4{width:100%}
+  .canvaswrap{height:60vh}
+  .side{border-inline-start:0;border-top:1px solid var(--line)}
+  .cols,.guide{grid-template-columns:1fr}
+  .acting{margin-inline-start:0}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+</head>
+<body>
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand"><b>مَسار</b><span>استوديو العمليات والصلاحيات</span></div>
+    <nav class="tabs" role="tablist" id="tabs">
+      <button class="tab" role="tab" data-tab="editor" aria-selected="true">الرسم</button>
+      <button class="tab" role="tab" data-tab="matrix" aria-selected="false">مصفوفة الصلاحيات</button>
+      <button class="tab" role="tab" data-tab="roles" aria-selected="false">الأدوار والتفويض</button>
+      <button class="tab" role="tab" data-tab="guide" aria-selected="false">الدليل والتصدير</button>
+      <button class="tab" role="tab" data-tab="audit" aria-selected="false">الإصدارات والسجل</button>
+    </nav>
+    <div class="acting"><label for="actingSel">أعمل بصفتي</label><select id="actingSel"></select><span class="lvl" id="actingLvl"></span></div>
+  </header>
+  <div class="pbar">
+    <span class="pname" id="pName"></span><span class="code" id="pCode"></span>
+    <span class="hint" id="pVersion"></span><span class="status" id="pStatus"></span>
+    <span class="spacer"></span>
+    <input class="search" id="search" type="search" placeholder="ابحث بالاسم أو الرمز أو الدور" aria-label="بحث">
+    <button class="btn" id="undoBtn" title="تراجع (Ctrl+Z)">تراجع</button>
+  </div>
+  <main id="view"></main>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(() => {
+'use strict';
+const STORE_KEY = 'masar-studio-v1';
+const TYPES = {
+  start:{label:'حدث بداية', short:'بداية', prefix:'E'},
+  task:{label:'مهمة', short:'مهمة', prefix:'T'},
+  service:{label:'مهمة نظام', short:'مهمة نظام', prefix:'S'},
+  decision:{label:'قرار (اعتماد)', short:'قرار', prefix:'D'},
+  xor:{label:'بوابة حصرية', short:'بوابة حصرية', prefix:'G'},
+  and:{label:'بوابة متوازية', short:'بوابة متوازية', prefix:'G'},
+  sub:{label:'عملية فرعية', short:'عملية فرعية', prefix:'P'},
+  doc:{label:'مستند / نموذج', short:'مستند', prefix:'F'},
+  end:{label:'حدث نهاية', short:'نهاية', prefix:'E'}
+};
+const LEVELS = {view:'عرض', comment:'تعليق', edit:'تعديل', approve:'اعتماد ونشر', admin:'إدارة'};
+const LEVEL_ORDER = ['view','comment','edit','approve','admin'];
+
+/* ---------- sample data (example process, clearly labelled) ---------- */
+function sample(){
+  const roles = [
+    {id:'r0', name:'مدير مكتب الجودة', users:'مستخدم تجريبي 1', level:'admin'},
+    {id:'r1', name:'مدير الإدارة الطالبة', users:'مستخدم تجريبي 2، مستخدم تجريبي 3', level:'comment'},
+    {id:'r2', name:'مدير الموارد البشرية', users:'مستخدم تجريبي 4', level:'approve'},
+    {id:'r3', name:'أخصائي التوظيف', users:'مستخدم تجريبي 5، مستخدم تجريبي 6', level:'edit'},
+    {id:'r4', name:'المدير التنفيذي', users:'مستخدم تجريبي 7', level:'approve'},
+    {id:'r5', name:'المدير المالي', users:'مستخدم تجريبي 8', level:'comment'},
+    {id:'r6', name:'لجنة المقابلات', users:'مستخدم تجريبي 9، مستخدم تجريبي 10', level:'view'},
+    {id:'r7', name:'نظام الموارد البشرية', users:'حساب خدمة', level:'view'}
+  ];
+  const N = (id,type,x,y,name,code,o={}) => Object.assign({id,type,x,y,name,code,purpose:'',desc:'',r:'',a:'',c:[],i:[],sla:'',limit:'',limitRef:'',delegable:false,delegDays:'',inputs:'',outputs:'',controls:'',system:'',comments:[]},o);
+  const nodes = [
+    N('n1','start',1300,110,'ورود طلب احتياج وظيفي','HR-02-E01'),
+    N('n2','task',1150,110,'رفع طلب الاحتياج','HR-02-T01',{purpose:'توثيق الحاجة إلى شغل وظيفة شاغرة أو جديدة',r:'r1',a:'r2',i:['r5'],sla:'يومي عمل',inputs:'الهيكل التنظيمي المعتمد',outputs:'نموذج طلب احتياج HR-F-01'}),
+    N('n3','xor',960,110,'هل الوظيفة ضمن الميزانية؟','HR-02-G01',{r:'r2',c:['r5']}),
+    N('n4','task',960,270,'رفع طلب استثناء للمالية','HR-02-T02',{purpose:'طلب تمويل وظيفة غير مدرجة في الميزانية',r:'r2',a:'r5',sla:'3 أيام عمل',outputs:'مذكرة استثناء'}),
+    N('n5','task',770,110,'الإعلان عن الوظيفة','HR-02-T03',{purpose:'استقطاب متقدمين مؤهلين',r:'r3',a:'r2',sla:'يوم عمل',outputs:'إعلان منشور'}),
+    N('n6','task',590,110,'فرز المتقدمين','HR-02-T04',{purpose:'اختيار المرشحين المطابقين لمتطلبات الوظيفة',r:'r3',c:['r1'],sla:'5 أيام عمل',inputs:'طلبات المتقدمين من بوابة التوظيف',outputs:'قائمة مختصرة بالمرشحين',delegable:true,delegDays:'14'}),
+    N('n7','task',410,110,'إجراء المقابلات','HR-02-T05',{purpose:'تقييم المرشحين وترتيبهم',r:'r6',c:['r1'],i:['r2'],sla:'7 أيام عمل',outputs:'محضر المقابلات ونتائج التقييم'}),
+    N('n8','decision',410,270,'اعتماد العرض الوظيفي','HR-02-D01',{purpose:'إقرار التعيين وشروطه المالية',r:'r2',a:'r4',c:['r5'],i:['r1'],sla:'يومي عمل',limit:'راتب شهري حتى 15,000 ريال، وما زاد يُرفع لرئيس مجلس الإدارة',limitRef:'4/2 من لائحة الصلاحيات',delegable:true,delegDays:'30',controls:'فصل المهام: من رفع العرض لا يعتمده'}),
+    N('n9','service',230,270,'إنشاء ملف الموظف','HR-02-S01',{purpose:'تسجيل الموظف الجديد آليًا',r:'r7',i:['r1'],system:'نظام الموارد البشرية',outputs:'رقم وظيفي وملف إلكتروني'}),
+    N('n10','doc',230,110,'عقد العمل','HR-02-F01',{desc:'يُعد وفق النموذج المعتمد ويوقعه الطرفان.'}),
+    N('n11','end',80,270,'اكتمال التعيين','HR-02-E02')
+  ];
+  nodes[2].comments=[{by:'المدير المالي',at:'2026-10-05 10:12',text:'نقترح إضافة سقف للمبلغ في شرط الاستثناء.'}];
+  const edges = [
+    {id:'e1',from:'n1',to:'n2',label:''},{id:'e2',from:'n2',to:'n3',label:''},
+    {id:'e3',from:'n3',to:'n5',label:'ضمن الميزانية'},{id:'e4',from:'n3',to:'n4',label:'خارج الميزانية'},
+    {id:'e5',from:'n4',to:'n5',label:''},{id:'e6',from:'n5',to:'n6',label:''},{id:'e7',from:'n6',to:'n7',label:''},
+    {id:'e8',from:'n7',to:'n8',label:''},{id:'e9',from:'n8',to:'n9',label:'معتمد'},{id:'e10',from:'n9',to:'n11',label:''},
+    {id:'e11',from:'n10',to:'n9',label:''}
+  ];
+  return {
+    sample:true,
+    process:{name:'إجراء التوظيف (مثال)', code:'HR-02', owner:'r2', purpose:'تنظيم مراحل استقطاب الموظفين وتعيينهم وتحديد الصلاحيات في كل مرحلة.', scope:'يشمل جميع الوظائف بدوام كامل في الجهة، ولا يشمل التطوع والتعاقد المؤقت.', refs:'لائحة الموارد البشرية، لائحة الصلاحيات المالية والإدارية', version:'1.0', status:'draft', approvedAt:'', approvedBy:''},
+    nodes, edges, roles,
+    delegations:[{id:'d1', nodeId:'n8', from:'r4', to:'r2', until:'2026-11-08', limit:'حتى 10,000 ريال', note:'إجازة المدير التنفيذي'}],
+    versions:[], log:[{at:'2026-10-05 09:30', by:'مدير مكتب الجودة', action:'إنشاء الإجراء من القالب', target:'HR-02'}],
+    acting:'r0', seq:20
+  };
+}
+
+/* ---------- state & persistence ---------- */
+let S;
+try{ const raw = localStorage.getItem(STORE_KEY); S = raw ? JSON.parse(raw) : sample(); }catch(e){ S = sample(); }
+let ui = {tab:'editor', sel:null, selEdge:null, sideTab:'props', zoom:1, query:'', matrixQuery:'', matrixType:'all', guideOpts:{map:true,steps:true,matrix:true,raci:true,roles:true,deleg:true,versions:true}, compareTo:''};
+const undoStack = [];
+function save(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(S)); }catch(e){} }
+function snapshot(){ undoStack.push(JSON.stringify(S)); if(undoStack.length>60) undoStack.shift(); }
+function commit(action, target){ if(action) log(action, target); save(); }
+function now(){ const d=new Date(); const p=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`; }
+function log(action, target){ S.log.unshift({at:now(), by:roleName(S.acting), action, target:target||''}); if(S.log.length>500) S.log.length=500; }
+function uid(p){ S.seq=(S.seq||0)+1; return p+S.seq+Math.random().toString(36).slice(2,5); }
+
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const roleById = id => S.roles.find(r=>r.id===id);
+const roleName = id => (roleById(id)||{}).name || '';
+const nodeById = id => S.nodes.find(n=>n.id===id);
+const list = arr => { arr=arr.filter(Boolean); if(arr.length<2) return arr.join(''); return arr.slice(0,-1).join('، ')+' و'+arr.at(-1); };
+const level = () => (roleById(S.acting)||{level:'view'}).level;
+const atLeast = l => LEVEL_ORDER.indexOf(level()) >= LEVEL_ORDER.indexOf(l);
+const canEdit = () => atLeast('edit');
+const isActor = t => !['start','end','doc'].includes(t);
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.hidden=false; clearTimeout(toast._t); toast._t=setTimeout(()=>t.hidden=true,2600); }
+function nextCode(type){
+  const pre = S.process.code+'-'+TYPES[type].prefix;
+  let n=1; while(S.nodes.some(x=>x.code===pre+String(n).padStart(2,'0'))) n++;
+  return pre+String(n).padStart(2,'0');
+}
+function outgoing(id){ return S.edges.filter(e=>e.from===id); }
+function incoming(id){ return S.edges.filter(e=>e.to===id); }
+
+/* ---------- auto explanation templates ---------- */
+function autoText(n){
+  const R=roleName(n.r), A=roleName(n.a), C=list(n.c.map(roleName)), I=list(n.i.map(roleName));
+  const outs=outgoing(n.id).map(e=>({e,t:nodeById(e.to)})).filter(o=>o.t);
+  const next=outs.map(o=>'«'+o.t.name+'»');
+  const code=n.code?` (${n.code})`:'';
+  let s='';
+  switch(n.type){
+    case 'start': s=`يبدأ الإجراء عند: ${n.name}.`; if(next.length) s+=` وينتقل بعدها إلى ${list(next)}.`; break;
+    case 'end': s=`ينتهي الإجراء عند: ${n.name}.`; break;
+    case 'task':
+      s=`يتولى ${R||'— (لم يُحدد المنفذ)'} تنفيذ مهمة «${n.name}»${code}`+(n.purpose?` بهدف ${n.purpose}`:'')+'.';
+      if(n.inputs) s+=` وتبدأ المهمة عند ورود ${n.inputs}.`;
+      if(n.sla) s+=` ويجب إنجازها خلال ${n.sla}.`;
+      if(n.outputs) s+=` وينتج عنها ${n.outputs}`+(next.length?`، وتنتقل إلى ${list(next)}`:'')+'.';
+      else if(next.length) s+=` وتنتقل بعدها إلى ${list(next)}.`;
+      if(A) s+=` ويعتمد مخرجاتها ${A}.`;
+      if(C) s+=` ويُستشار فيها ${C}.`;
+      if(I) s+=` ويُبلَّغ بنتيجتها ${I}.`;
+      if(n.delegable) s+=` ويجوز تفويضها لمدة لا تتجاوز ${n.delegDays||'—'} يومًا.`;
+      break;
+    case 'service':
+      s=`ينفذ ${n.system||R||'النظام'} آليًا مهمة «${n.name}»${code}`+(n.purpose?` بهدف ${n.purpose}`:'')+'.';
+      if(n.outputs) s+=` وينتج عنها ${n.outputs}.`;
+      if(I) s+=` ويُبلَّغ ${I} بالنتيجة.`;
+      if(next.length) s+=` ثم ينتقل الإجراء إلى ${list(next)}.`;
+      break;
+    case 'decision':
+      s=`يختص ${A||'— (لم يُحدد المعتمد)'} باتخاذ قرار «${n.name}»${code}`+(R?` بعد رفعه من ${R}`:'')+(C?` وأخذ رأي ${C}`:'')+'.';
+      if(n.purpose) s+=` والغرض منه ${n.purpose}.`;
+      s+=` حدود الصلاحية: ${n.limit||'— (لم يُحدد سقف)'}`+(n.limitRef?` وفق البند ${n.limitRef}`:'')+'.';
+      if(n.sla) s+=` ويُتخذ القرار خلال ${n.sla}.`;
+      s+= n.delegable?` ويجوز تفويض هذا القرار لمدة لا تتجاوز ${n.delegDays||'—'} يومًا، ولا يتجاوز المفوَّض إليه سقف المفوِّض.`:' ولا يجوز تفويض هذا القرار.';
+      if(I) s+=` ويُبلَّغ بالقرار ${I}.`;
+      if(outs.length){ s+='\n'+outs.map(o=>`- ${o.e.label?('إذا كان القرار «'+o.e.label+'»'):'بعد القرار'}: ينتقل الإجراء إلى «${o.t.name}».`).join('\n'); }
+      break;
+    case 'xor':
+      s=`عند هذه النقطة يتحقق ${R||'المسؤول'} من: ${n.name}`+(C?` بالتشاور مع ${C}`:'');
+      if(outs.length) s+='\n'+outs.map(o=>`- ${o.e.label?('إذا '+o.e.label):'في غير ذلك'}: ينتقل الإجراء إلى «${o.t.name}».`).join('\n');
+      break;
+    case 'and': s=`يتفرع الإجراء هنا إلى مسارات تُنفذ بالتوازي: ${list(next)||'—'}، ولا ينتقل إلى ما بعدها إلا باكتمالها جميعًا.`; break;
+    case 'sub': s=`يُستدعى الإجراء الفرعي «${n.name}»${code}`+(R?` ويتولاه ${R}`:'')+'.'+(next.length?` وبعد اكتماله ينتقل الإجراء إلى ${list(next)}.`:''); break;
+    case 'doc': s=`المستند «${n.name}»${code} يُستخدم في ${list(outs.map(o=>'«'+o.t.name+'»'))||'هذا الإجراء'}.`; break;
+  }
+  if(n.controls) s+=`\nنقطة ضبط: ${n.controls}.`;
+  return s;
+}
+
+/* ---------- validation ---------- */
+function issues(){
+  const out=[];
+  if(!S.nodes.some(n=>n.type==='start')) out.push({msg:'لا يوجد حدث بداية في الخريطة'});
+  if(!S.nodes.some(n=>n.type==='end')) out.push({msg:'لا يوجد حدث نهاية في الخريطة'});
+  S.nodes.forEach(n=>{
+    const inn=incoming(n.id).length, out_=outgoing(n.id).length;
+    if(n.type!=='start' && n.type!=='doc' && !inn) out.push({id:n.id,msg:`«${n.name}» لا يصل إليه أي مسار`});
+    if(n.type!=='end' && !out_) out.push({id:n.id,msg:`«${n.name}» لا يخرج منه أي مسار`});
+    if(['task','sub','xor'].includes(n.type) && !n.r) out.push({id:n.id,msg:`«${n.name}» بلا منفذ`});
+    if(n.type==='decision'){
+      if(!n.a) out.push({id:n.id,msg:`القرار «${n.name}» بلا معتمد`});
+      if(!n.limit) out.push({id:n.id,msg:`القرار «${n.name}» بلا سقف صلاحية`});
+      if(n.a && n.a===n.r) out.push({id:n.id,msg:`تعارض فصل المهام: «${roleName(n.a)}» يرفع القرار «${n.name}» ويعتمده`});
+    }
+    if(n.type==='xor' && out_>1 && outgoing(n.id).some(e=>!e.label)) out.push({id:n.id,msg:`البوابة «${n.name}» فيها مسار بلا شرط`});
+  });
+  S.delegations.forEach(d=>{
+    const n=nodeById(d.nodeId);
+    if(n && !n.delegable) out.push({id:n.id,msg:`تفويض قائم على «${n.name}» وهو غير قابل للتفويض`});
+  });
+  return out;
+}
+
+/* ---------- geometry ---------- */
+function dims(n){
+  switch(n.type){
+    case 'start': case 'end': return {w:48,h:48,shape:'circle'};
+    case 'xor': case 'and': return {w:64,h:64,shape:'diamond'};
+    case 'doc': return {w:120,h:62,shape:'rect'};
+    default: return {w:160,h:66,shape:'rect'};
+  }
+}
+function boundary(n, tx, ty){
+  const d=dims(n); const dx=tx-n.x, dy=ty-n.y; const L=Math.hypot(dx,dy)||1;
+  if(d.shape==='circle'){ return {x:n.x+dx/L*d.w/2, y:n.y+dy/L*d.h/2}; }
+  const hw=d.w/2, hh=d.h/2; let s;
+  if(d.shape==='diamond') s=1/(Math.abs(dx)/hw+Math.abs(dy)/hh||1);
+  else s=Math.min(dx?hw/Math.abs(dx):Infinity, dy?hh/Math.abs(dy):Infinity);
+  return {x:n.x+dx*s, y:n.y+dy*s};
+}
+function wrap(str, max){
+  const words=String(str||'').split(/\s+/); const lines=[]; let cur='';
+  words.forEach(w=>{ if((cur+' '+w).trim().length>max && cur){ lines.push(cur); cur=w; } else cur=(cur+' '+w).trim(); });
+  if(cur) lines.push(cur);
+  if(lines.length>3){ lines.length=3; lines[2]+='…'; }
+  return lines;
+}
+function extent(){
+  let maxX=900,maxY=480;
+  S.nodes.forEach(n=>{ maxX=Math.max(maxX,n.x+140); maxY=Math.max(maxY,n.y+120); });
+  return {W:Math.ceil(maxX), H:Math.ceil(maxY)};
+}
+
+/* ---------- SVG renderer (screen uses tokens; export uses literal colours) ---------- */
+const LIT = {ink:'#1b2329', muted:'#56666d', line:'#5c6f75', surface:'#ffffff', accent:'#0d6b63', accentSoft:'#dcefeb', dec:'#a86200', decSoft:'#fff0d4', gw:'#3c5a8a', gwSoft:'#e5ecf8', good:'#2b7a4b', bad:'#b42318', docSoft:'#f2f5f4', bg:'#ffffff', sel:'#2a5bd7', grid:'#eef2f1'};
+const VAR = {ink:'var(--ink)', muted:'var(--muted)', line:'var(--muted)', surface:'var(--surface)', accent:'var(--accent)', accentSoft:'var(--accent-soft)', dec:'var(--decision)', decSoft:'var(--decision-soft)', gw:'var(--gw)', gwSoft:'var(--gw-soft)', good:'var(--good)', bad:'var(--bad)', docSoft:'var(--surface-2)', bg:'var(--bg)', sel:'var(--sel)', grid:'var(--grid)'};
+function renderSVG({lit=false, interactive=false}={}){
+  const C = lit?LIT:VAR; const {W,H}=extent();
+  const font = lit?'font-family="Arial, Tahoma, sans-serif"':'';
+  const cls = (c, size, fill, extra='') => lit ? `font-size="${size}" fill="${fill}" ${extra}` : `class="${c}" ${extra}`;
+  const q = ui.query.trim();
+  const match = n => !q || [n.name,n.code,roleName(n.r),roleName(n.a)].join(' ').includes(q);
+  let s = `<svg xmlns="http://www.w3.org/2000/svg" ${interactive?'id="canvas"':''} viewBox="0 0 ${W} ${H}" width="${Math.round(W*(lit?1:ui.zoom))}" height="${Math.round(H*(lit?1:ui.zoom))}" ${font} direction="rtl">`;
+  s += `<defs><marker id="arw${lit?'L':''}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="${C.line}"/></marker>`;
+  if(!lit) s += `<pattern id="gridp" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="${C.grid}" stroke-width="1"/></pattern>`;
+  s += `</defs>`;
+  s += `<rect width="${W}" height="${H}" fill="${lit?C.bg:'url(#gridp)'}" data-bg="1"/>`;
+  // edges
+  S.edges.forEach(e=>{
+    const a=nodeById(e.from), b=nodeById(e.to); if(!a||!b) return;
+    const p1=boundary(a,b.x,b.y), p2=boundary(b,a.x,a.y);
+    const sel = !lit && ui.selEdge===e.id;
+    const dashed = a.type==='doc';
+    s += `<g data-edge="${e.id}">`;
+    if(interactive) s += `<line class="edge-hit" x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="transparent" stroke-width="14"/>`;
+    s += `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="${sel?C.sel:C.line}" stroke-width="${sel?2.2:1.4}" ${dashed?'stroke-dasharray="4 4"':''} marker-end="url(#arw${lit?'L':''})" pointer-events="none"/>`;
+    if(e.label){
+      const mx=(p1.x+p2.x)/2, my=(p1.y+p2.y)/2; const w=e.label.length*6.6+14;
+      s += `<rect x="${mx-w/2}" y="${my-11}" width="${w}" height="20" rx="4" fill="${C.surface}" stroke="${C.line}" stroke-width=".6" pointer-events="none"/>`;
+      s += `<text x="${mx}" y="${my+3}" text-anchor="middle" ${cls('e-label',11.5,C.ink)} pointer-events="none">${esc(e.label)}</text>`;
+    }
+    s += `</g>`;
+  });
+  // nodes
+  S.nodes.forEach(n=>{
+    const d=dims(n); const sel = !lit && ui.sel===n.id; const dim = !lit && !match(n);
+    const stroke = sel?C.sel:null; const sw = sel?2.6:1.5;
+    s += `<g class="node${dim?' dim':''}" data-node="${n.id}">`;
+    const x=n.x-d.w/2, y=n.y-d.h/2;
+    if(n.type==='start'||n.type==='end'){
+      s += `<circle cx="${n.x}" cy="${n.y}" r="${d.w/2}" fill="${C.surface}" stroke="${stroke||(n.type==='start'?C.good:C.bad)}" stroke-width="${n.type==='end'?3.4:sw}"/>`;
+    } else if(n.type==='xor'||n.type==='and'){
+      s += `<polygon points="${n.x},${y} ${n.x+d.w/2},${n.y} ${n.x},${y+d.h} ${x},${n.y}" fill="${C.gwSoft}" stroke="${stroke||C.gw}" stroke-width="${sw}"/>`;
+      s += n.type==='xor' ? `<path d="M${n.x-9} ${n.y-9}L${n.x+9} ${n.y+9}M${n.x+9} ${n.y-9}L${n.x-9} ${n.y+9}" stroke="${C.gw}" stroke-width="3" stroke-linecap="round"/>` : `<path d="M${n.x} ${n.y-12}V${n.y+12}M${n.x-12} ${n.y}H${n.x+12}" stroke="${C.gw}" stroke-width="3" stroke-linecap="round"/>`;
+    } else if(n.type==='doc'){
+      s += `<path d="M${x} ${y}H${x+d.w-16}L${x+d.w} ${y+16}V${y+d.h}H${x}Z" fill="${C.docSoft}" stroke="${stroke||C.line}" stroke-width="${sw}"/><path d="M${x+d.w-16} ${y}V${y+16}H${x+d.w}" fill="none" stroke="${C.line}" stroke-width="1"/>`;
+    } else {
+      const fill = n.type==='decision'?C.decSoft:C.surface; const st = n.type==='decision'?C.dec:C.line;
+      s += `<rect x="${x}" y="${y}" width="${d.w}" height="${d.h}" rx="10" fill="${fill}" stroke="${stroke||st}" stroke-width="${n.type==='decision'&&!sel?2:sw}"/>`;
+      if(n.type==='sub') s += `<rect x="${n.x-7}" y="${y+d.h-15}" width="14" height="12" fill="none" stroke="${C.line}"/><path d="M${n.x} ${y+d.h-13}V${y+d.h-5}M${n.x-4} ${y+d.h-9}H${n.x+4}" stroke="${C.line}"/>`;
+      if(n.type==='service') s += `<circle cx="${x+d.w-14}" cy="${y+14}" r="6" fill="none" stroke="${C.muted}" stroke-width="1.6" stroke-dasharray="2.5 1.8"/>`;
+      if(n.type==='task') s += `<circle cx="${x+d.w-14}" cy="${y+11}" r="3.5" fill="${C.muted}"/><path d="M${x+d.w-21} ${y+21}a7 6 0 0 1 14 0" fill="${C.muted}"/>`;
+      if(n.type==='decision') s += `<path d="M${x+d.w-20} ${y+14}l5 5l9 -10" fill="none" stroke="${C.dec}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>`;
+    }
+    // labels
+    const inside = !['start','end','xor','and'].includes(n.type);
+    if(inside){
+      const lines = wrap(n.name, n.type==='doc'?14:19); const base = n.y - (lines.length-1)*8 + 4;
+      lines.forEach((ln,i)=>{ s += `<text x="${n.x}" y="${base+i*16}" text-anchor="middle" ${cls('n-label',13,C.ink,'font-weight="500"')}>${esc(ln)}</text>`; });
+    } else {
+      const lines = wrap(n.name, 18);
+      const top = n.y + d.h/2 + 16;
+      lines.forEach((ln,i)=>{ s += `<text x="${n.x}" y="${top+i*15}" text-anchor="middle" ${cls('n-label',12,C.ink)}>${esc(ln)}</text>`; });
+    }
+    if(n.code && inside) s += `<text x="${n.x}" y="${y-6}" text-anchor="middle" direction="ltr" ${cls('n-code',10.5,C.muted)}>${esc(n.code)}</text>`;
+    if(inside && isActor(n.type)){
+      const who = n.type==='decision' ? (n.a?('يعتمد: '+roleName(n.a)):'') : roleName(n.r);
+      if(who) s += `<text x="${n.x}" y="${y+d.h+15}" text-anchor="middle" ${cls('n-sub',11,n.type==='decision'?C.dec:C.muted)}>${esc(who)}</text>`;
+    }
+    if(sel && interactive && canEdit() && n.type!=='end'){
+      const hx = n.x - d.w/2 - 14;
+      s += `<g data-handle="${n.id}" style="cursor:crosshair"><circle cx="${hx}" cy="${n.y}" r="10" fill="${C.sel}"/><path d="M${hx+4} ${n.y}H${hx-4}M${hx-1} ${n.y-3}L${hx-4} ${n.y}L${hx-1} ${n.y+3}" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></g>`;
+    }
+    s += `</g>`;
+  });
+  s += `<line id="tmpEdge" x1="0" y1="0" x2="0" y2="0" stroke="${C.sel}" stroke-width="2" stroke-dasharray="5 4" visibility="hidden"/>`;
+  return s + `</svg>`;
+}
+function iconSVG(type){
+  const st='var(--muted)';
+  switch(type){
+    case 'start': return `<svg width="22" height="22" viewBox="0 0 22 22"><circle cx="11" cy="11" r="8" fill="none" stroke="var(--good)" stroke-width="1.6"/></svg>`;
+    case 'end': return `<svg width="22" height="22" viewBox="0 0 22 22"><circle cx="11" cy="11" r="8" fill="none" stroke="var(--bad)" stroke-width="3"/></svg>`;
+    case 'xor': return `<svg width="22" height="22" viewBox="0 0 22 22"><path d="M11 2L20 11L11 20L2 11Z" fill="var(--gw-soft)" stroke="var(--gw)" stroke-width="1.4"/><path d="M8 8l6 6M14 8l-6 6" stroke="var(--gw)" stroke-width="1.8"/></svg>`;
+    case 'and': return `<svg width="22" height="22" viewBox="0 0 22 22"><path d="M11 2L20 11L11 20L2 11Z" fill="var(--gw-soft)" stroke="var(--gw)" stroke-width="1.4"/><path d="M11 7v8M7 11h8" stroke="var(--gw)" stroke-width="1.8"/></svg>`;
+    case 'doc': return `<svg width="22" height="22" viewBox="0 0 22 22"><path d="M4 3H14L18 7V19H4Z" fill="var(--surface-2)" stroke="${st}" stroke-width="1.4"/></svg>`;
+    case 'decision': return `<svg width="22" height="22" viewBox="0 0 22 22"><rect x="2" y="5" width="18" height="12" rx="3" fill="var(--decision-soft)" stroke="var(--decision)" stroke-width="1.6"/><path d="M7 11l3 3l5-6" fill="none" stroke="var(--decision)" stroke-width="1.6"/></svg>`;
+    case 'sub': return `<svg width="22" height="22" viewBox="0 0 22 22"><rect x="2" y="5" width="18" height="12" rx="3" fill="none" stroke="${st}" stroke-width="1.4"/><path d="M11 9v6M8 12h6" stroke="${st}" stroke-width="1.4"/></svg>`;
+    case 'service': return `<svg width="22" height="22" viewBox="0 0 22 22"><rect x="2" y="5" width="18" height="12" rx="3" fill="none" stroke="${st}" stroke-width="1.4"/><circle cx="11" cy="11" r="3" fill="none" stroke="${st}" stroke-width="1.4" stroke-dasharray="2 1.5"/></svg>`;
+    default: return `<svg width="22" height="22" viewBox="0 0 22 22"><rect x="2" y="5" width="18" height="12" rx="3" fill="none" stroke="${st}" stroke-width="1.4"/></svg>`;
+  }
+}
+
+/* ---------- header ---------- */
+function renderHeader(){
+  const sel=$('#actingSel');
+  sel.innerHTML = S.roles.map(r=>`<option value="${r.id}" ${r.id===S.acting?'selected':''}>${esc(r.name)}</option>`).join('');
+  $('#actingLvl').textContent = 'صلاحية المنصة: '+LEVELS[level()];
+  $('#pName').textContent = S.process.name;
+  $('#pCode').textContent = S.process.code;
+  $('#pVersion').textContent = 'الإصدار '+S.process.version;
+  const st=$('#pStatus'); st.className='status '+(S.process.status==='approved'?'approved':'draft'); st.textContent = S.process.status==='approved'?'معتمد ونافذ':'مسودة';
+  document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected', t.dataset.tab===ui.tab));
+  $('#undoBtn').disabled = !undoStack.length || !canEdit();
+}
+
+/* ---------- views ---------- */
+function render(){
+  renderHeader();
+  const v=$('#view');
+  if(ui.tab==='editor') v.innerHTML = editorView();
+  else if(ui.tab==='matrix') v.innerHTML = matrixView();
+  else if(ui.tab==='roles') v.innerHTML = rolesView();
+  else if(ui.tab==='guide') { v.innerHTML = guideView(); buildPreview(); }
+  else v.innerHTML = auditView();
+  if(ui.tab==='editor') bindCanvas();
+}
+
+function editorView(){
+  const ed = canEdit();
+  const pal = ['start','task','service','decision','xor','and','sub','doc','end'].map(t=>`<button class="pal" draggable="${ed}" data-add="${t}" ${ed?'':'disabled'} title="اسحب إلى اللوحة أو انقر للإضافة">${iconSVG(t)}<span>${TYPES[t].short}</span></button>`).join('');
+  return `<div class="editor">
+    <aside class="palette"><h4>العناصر</h4>${pal}<p class="hint" style="margin:8px 2px 0">اسحب العنصر إلى اللوحة. للتوصيل: اختر عنصرًا ثم اسحب الدائرة الزرقاء إلى العنصر التالي.</p></aside>
+    <section class="canvaswrap" id="cwrap">${renderSVG({interactive:true})}
+      <div class="zoom"><button class="btn" data-zoom="1.15" aria-label="تكبير">+</button><button class="btn" data-zoom="0" aria-label="الحجم الأصلي">100%</button><button class="btn" data-zoom="0.87" aria-label="تصغير">−</button></div>
+    </section>
+    <aside class="side" id="side">${sideView()}</aside>
+  </div>`;
+}
+
+function roleOptions(selected, empty='— اختر —'){
+  return `<option value="">${empty}</option>`+S.roles.map(r=>`<option value="${r.id}" ${r.id===selected?'selected':''}>${esc(r.name)}</option>`).join('');
+}
+function sideView(){
+  const ro = !canEdit();
+  const dis = ro?'disabled':'';
+  const iss = issues();
+  if(ui.selEdge){
+    const e=S.edges.find(x=>x.id===ui.selEdge); if(!e){ ui.selEdge=null; return sideView(); }
+    const a=nodeById(e.from), b=nodeById(e.to);
+    return `<div class="typebadge">مسار تدفق</div>
+      <p class="hint">من «${esc(a?.name)}» إلى «${esc(b?.name)}»</p>
+      <div class="field"><label for="edgeLabel">الشرط أو التسمية</label><input id="edgeLabel" value="${esc(e.label)}" ${dis} placeholder="مثال: المبلغ أكبر من 50,000 ريال"></div>
+      ${ro?'':`<button class="btn danger" data-act="delEdge">حذف المسار</button>`}`;
+  }
+  const n = ui.sel && nodeById(ui.sel);
+  if(!n){
+    return `<div><h4>الإجراء</h4></div>
+      ${ro?`<div class="ro-note">صلاحيتك الحالية «${LEVELS[level()]}»: يمكنك الاطلاع دون تعديل.</div>`:''}
+      <div class="field"><label for="p_name">اسم الإجراء</label><input id="p_name" data-p="name" value="${esc(S.process.name)}" ${dis}></div>
+      <div class="row2"><div class="field"><label for="p_code">الرمز</label><input id="p_code" data-p="code" value="${esc(S.process.code)}" ${dis} dir="ltr"></div>
+      <div class="field"><label for="p_owner">مالك الإجراء</label><select id="p_owner" data-p="owner" ${dis}>${roleOptions(S.process.owner)}</select></div></div>
+      <div class="field"><label for="p_purpose">الغرض</label><textarea id="p_purpose" data-p="purpose" ${dis}>${esc(S.process.purpose)}</textarea></div>
+      <div class="field"><label for="p_scope">النطاق</label><textarea id="p_scope" data-p="scope" ${dis}>${esc(S.process.scope)}</textarea></div>
+      <div class="field"><label for="p_refs">المراجع والسياسات</label><input id="p_refs" data-p="refs" value="${esc(S.process.refs)}" ${dis}></div>
+      <div><h4>التحقق من الخريطة (${iss.length})</h4><div class="issues">${iss.length?iss.map(i=>`<button class="issue" ${i.id?`data-goto="${i.id}"`:''}>${esc(i.msg)}</button>`).join(''):'<div class="issue ok">الخريطة مكتملة: لا ملاحظات</div>'}</div></div>`;
+  }
+  const t=ui.sideTab;
+  const tabs = `<div class="seg" role="tablist">${[['props','الخصائص'],['auth','الصلاحيات'],['auto','الشرح'],['notes','التعليقات ('+n.comments.length+')']].map(([k,l])=>`<button role="tab" data-side="${k}" aria-selected="${t===k}">${l}</button>`).join('')}</div>`;
+  const head = `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span class="typebadge">${iconSVG(n.type)} ${TYPES[n.type].label}</span><span class="code">${esc(n.code)}</span></div>`;
+  let body='';
+  if(t==='props'){
+    body = `
+      <div class="field"><label for="f_name">الاسم</label><input id="f_name" data-f="name" value="${esc(n.name)}" ${dis}></div>
+      <div class="row2"><div class="field"><label for="f_code">الرمز المؤسسي</label><input id="f_code" data-f="code" value="${esc(n.code)}" dir="ltr" ${dis}></div>
+      <div class="field"><label for="f_type">النوع</label><select id="f_type" data-f="type" ${dis}>${Object.keys(TYPES).map(k=>`<option value="${k}" ${k===n.type?'selected':''}>${TYPES[k].label}</option>`).join('')}</select></div></div>
+      ${isActor(n.type)?`<div class="field"><label for="f_purpose">الغرض</label><input id="f_purpose" data-f="purpose" value="${esc(n.purpose)}" ${dis}></div>`:''}
+      <div class="field"><label for="f_desc">وصف إضافي وخطوات التنفيذ</label><textarea id="f_desc" data-f="desc" rows="4" ${dis}>${esc(n.desc)}</textarea></div>
+      ${['task','service','decision','sub'].includes(n.type)?`
+      <div class="row2"><div class="field"><label for="f_inputs">المدخلات</label><input id="f_inputs" data-f="inputs" value="${esc(n.inputs)}" ${dis}></div>
+      <div class="field"><label for="f_outputs">المخرجات</label><input id="f_outputs" data-f="outputs" value="${esc(n.outputs)}" ${dis}></div></div>
+      <div class="row2"><div class="field"><label for="f_sla">المدة المعيارية</label><input id="f_sla" data-f="sla" value="${esc(n.sla)}" placeholder="مثال: 3 أيام عمل" ${dis}></div>
+      ${n.type==='service'?`<div class="field"><label for="f_system">النظام</label><input id="f_system" data-f="system" value="${esc(n.system)}" ${dis}></div>`:'<div></div>'}</div>
+      <div class="field"><label for="f_controls">نقطة ضبط أو مخاطرة مرتبطة</label><input id="f_controls" data-f="controls" value="${esc(n.controls)}" ${dis}></div>`:''}
+      ${ro?'':`<div class="field"><label for="linkTo">ربط مباشر بعنصر تالٍ</label><div style="display:flex;gap:6px"><select id="linkTo" style="flex:1;min-width:0;border:1px solid var(--line);border-radius:6px;padding:6px;background:var(--bg)"><option value="">— اختر —</option>${S.nodes.filter(x=>x.id!==n.id).map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('')}</select><button class="btn" data-act="link">ربط</button></div></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-act="dup">تكرار</button><button class="btn danger" data-act="delNode">حذف العنصر</button></div>`}`;
+  } else if(t==='auth'){
+    if(!isActor(n.type)) body = `<p class="empty">هذا العنصر لا يحمل صلاحيات تنفيذ. الصلاحيات تُسند للمهام والقرارات والبوابات.</p>`;
+    else {
+      const chipset = (key) => `<div class="chips">${S.roles.map(r=>`<button class="chip" data-chip="${key}" data-role="${r.id}" aria-pressed="${n[key].includes(r.id)}" ${dis}>${esc(r.name)}</button>`).join('')}</div>`;
+      const dels = S.delegations.filter(d=>d.nodeId===n.id);
+      body = `
+      <div class="field"><label for="f_r">${n.type==='decision'?'رافع القرار (R)':'المنفذ (R)'}</label><select id="f_r" data-f="r" ${dis}>${roleOptions(n.r)}</select></div>
+      <div class="field"><label for="f_a">المعتمد (A)</label><select id="f_a" data-f="a" ${dis}>${roleOptions(n.a,'— لا يوجد —')}</select></div>
+      <div class="field"><label>يُستشار (C)</label>${chipset('c')}</div>
+      <div class="field"><label>يُبلَّغ (I)</label>${chipset('i')}</div>
+      ${n.type==='decision'?`<div class="field"><label for="f_limit">سقف الصلاحية</label><input id="f_limit" data-f="limit" value="${esc(n.limit)}" placeholder="مثال: حتى 50,000 ريال" ${dis}></div>
+      <div class="field"><label for="f_limitRef">مرجع لائحة الصلاحيات</label><input id="f_limitRef" data-f="limitRef" value="${esc(n.limitRef)}" placeholder="مثال: البند 4/2" ${dis}></div>`:''}
+      <label class="chk"><input type="checkbox" id="f_deleg" data-f="delegable" ${n.delegable?'checked':''} ${dis}> قابل للتفويض</label>
+      ${n.delegable?`<div class="field"><label for="f_delegDays">أقصى مدة للتفويض (يوم)</label><input id="f_delegDays" data-f="delegDays" value="${esc(n.delegDays)}" inputmode="numeric" ${dis}></div>`:''}
+      ${dels.length?`<div><h4>تفويضات نافذة</h4>${dels.map(d=>`<p class="hint" style="margin:0">من ${esc(roleName(d.from))} إلى ${esc(roleName(d.to))} حتى ${esc(d.until)} (${esc(d.limit)})</p>`).join('')}</div>`:''}
+      ${n.a && n.a===n.r?`<div class="issue">تعارض فصل المهام: الدور نفسه يرفع ويعتمد</div>`:''}`;
+    }
+  } else if(t==='auto'){
+    body = `<p class="hint">نص مولَّد آليًا من الخصائص والصلاحيات والمسارات، ويتحدث مع كل تعديل. يظهر في الدليل المُصدَّر قبل الوصف الإضافي.</p>
+      <div class="autotext" id="autotext">${esc(autoText(n))}</div>
+      <button class="btn" data-act="copyAuto">نسخ النص</button>`;
+  } else {
+    body = `${n.comments.length?n.comments.map(c=>`<div class="comment"><small>${esc(c.by)} · ${esc(c.at)}</small>${esc(c.text)}</div>`).join(''):'<p class="empty">لا توجد تعليقات على هذا العنصر.</p>'}
+      ${atLeast('comment')?`<div class="field"><label for="newComment">تعليق جديد</label><textarea id="newComment" rows="3" placeholder="اكتب ملاحظتك على هذا العنصر"></textarea></div><button class="btn primary" data-act="comment">إضافة التعليق</button>`:'<p class="hint">صلاحية «عرض» لا تسمح بالتعليق.</p>'}`;
+  }
+  return head + (ro?`<div class="ro-note">صلاحيتك الحالية «${LEVELS[level()]}»: للاطلاع فقط.</div>`:'') + tabs + body;
+}
+
+/* matrix */
+function matrixView(){
+  const q=ui.matrixQuery.trim(); const ed=canEdit();
+  const rows = S.nodes.filter(n=>isActor(n.type)).filter(n=>ui.matrixType==='all'||n.type===ui.matrixType).filter(n=>!q||[n.name,n.code].join(' ').includes(q));
+  const head = `<tr><th>الرمز</th><th>العنصر</th><th>النوع</th>${S.roles.map(r=>`<th title="${esc(r.name)}">${esc(r.name)}</th>`).join('')}<th>السقف / الشرط</th><th>تفويض</th><th>ملاحظات</th></tr>`;
+  const body = rows.map(n=>{
+    const cells = S.roles.map(r=>{ const v = n.r===r.id?'R':n.a===r.id?'A':n.c.includes(r.id)?'C':n.i.includes(r.id)?'I':''; return `<td><button class="raci ${v}" data-raci="${n.id}" data-role="${r.id}" ${ed?'':'disabled'} aria-label="${esc(r.name)}: ${v||'لا شيء'}">${v||'·'}</button></td>`; }).join('');
+    const warn=[]; if(n.type==='decision'&&!n.a) warn.push('بلا معتمد'); if(n.a&&n.a===n.r) warn.push('تعارض فصل المهام'); if(['task','sub','xor'].includes(n.type)&&!n.r) warn.push('بلا منفذ'); if(n.type==='decision'&&!n.limit) warn.push('بلا سقف');
+    return `<tr><td class="code">${esc(n.code)}</td><td>${esc(n.name)}</td><td>${TYPES[n.type].short}</td>${cells}<td>${esc(n.limit||'—')}</td><td>${n.delegable?`<span class="yes">نعم</span> ${n.delegDays?esc(n.delegDays)+' يومًا':''}`:'<span class="no">لا</span>'}</td><td class="warncell">${warn.join('، ')}</td></tr>`;
+  }).join('') || `<tr><td colspan="${S.roles.length+6}" class="empty">لا عناصر مطابقة.</td></tr>`;
+  const plat = `<tr><th>الدور</th>${LEVEL_ORDER.map(l=>`<th>${LEVELS[l]}</th>`).join('')}</tr>`+S.roles.map(r=>`<tr><td>${esc(r.name)}</td>${LEVEL_ORDER.map(l=>`<td>${LEVEL_ORDER.indexOf(r.level)>=LEVEL_ORDER.indexOf(l)?'<span class="yes">✓</span>':'<span class="no">—</span>'}</td>`).join('')}</tr>`).join('');
+  return `<div class="page">
+    <div><h2>مصفوفة صلاحيات العملية</h2><p class="lead">كل صف عنصر في الخريطة وكل عمود دور. انقر الخلية للتبديل بين منفذ ومعتمد ومستشار ومُبلَّغ؛ التغيير ينعكس على الخريطة والدليل فورًا.</p></div>
+    <div class="panel">
+      <div class="tools"><input class="search" id="mq" type="search" placeholder="تصفية بالاسم أو الرمز" value="${esc(ui.matrixQuery)}" aria-label="تصفية">
+        <select id="mtype" class="search" style="width:auto" aria-label="نوع العنصر"><option value="all">كل الأنواع</option>${['task','service','decision','xor','and','sub'].map(k=>`<option value="${k}" ${ui.matrixType===k?'selected':''}>${TYPES[k].short}</option>`).join('')}</select>
+        <div class="legend"><span><button class="raci R" tabindex="-1" disabled>R</button> منفذ</span><span><button class="raci A" tabindex="-1" disabled>A</button> معتمد</span><span><button class="raci C" tabindex="-1" disabled>C</button> يُستشار</span><span><button class="raci I" tabindex="-1" disabled>I</button> يُبلَّغ</span></div></div>
+      <div class="tablewrap"><table class="grid">${head}${body}</table></div>
+    </div>
+    <div class="panel"><h3>صلاحيات المنصة حسب الدور</h3><p class="hint" style="margin:0">من يرى الخرائط ومن يعدّلها ويعتمدها. تُضبط من تبويب الأدوار. جرّب تغيير «أعمل بصفتي» أعلى الصفحة لترى أثرها.</p>
+      <div class="tablewrap"><table class="grid">${plat}</table></div></div>
+  </div>`;
+}
+
+/* roles */
+function rolesView(){
+  const adm = atLeast('admin'); const dis = adm?'':'disabled';
+  const decisions = S.nodes.filter(n=>['decision','task'].includes(n.type));
+  const rows = S.roles.map(r=>{
+    const uses = S.nodes.filter(n=>n.r===r.id||n.a===r.id||n.c.includes(r.id)||n.i.includes(r.id)).length;
+    return `<tr><td><input id="rn_${r.id}" data-role-f="name" data-id="${r.id}" value="${esc(r.name)}" ${dis} aria-label="اسم الدور"></td>
+      <td><input id="ru_${r.id}" data-role-f="users" data-id="${r.id}" value="${esc(r.users)}" ${dis} aria-label="المستخدمون"></td>
+      <td><select id="rl_${r.id}" data-role-f="level" data-id="${r.id}" ${dis} aria-label="صلاحية المنصة">${LEVEL_ORDER.map(l=>`<option value="${l}" ${r.level===l?'selected':''}>${LEVELS[l]}</option>`).join('')}</select></td>
+      <td style="text-align:center">${uses}</td>
+      <td>${adm?`<button class="btn danger" data-delrole="${r.id}" ${uses?'title="الدور مستخدم في عناصر؛ سيُزال منها"':''}>حذف</button>`:''}</td></tr>`;
+  }).join('');
+  const dels = S.delegations.map(d=>{ const n=nodeById(d.nodeId); const expired = d.until && d.until < now().slice(0,10);
+    return `<tr><td>${esc(n?.name||'—')}</td><td>${esc(roleName(d.from))}</td><td>${esc(roleName(d.to))}</td><td>${esc(d.limit)}</td><td>${esc(d.until)} ${expired?'<span class="warncell">(منتهٍ)</span>':''}</td><td>${esc(d.note||'')}</td><td>${atLeast('approve')?`<button class="btn danger" data-deldel="${d.id}">إلغاء</button>`:''}</td></tr>`; }).join('') || `<tr><td colspan="7" class="empty">لا تفويضات.</td></tr>`;
+  const delegable = S.nodes.filter(n=>n.delegable);
+  return `<div class="page">
+    <div><h2>الأدوار والمستخدمون</h2><p class="lead">الدور يربط المستخدمين بصلاحيات العملية (منفذ، معتمد…) وبصلاحية المنصة (عرض، تعديل، اعتماد، إدارة). في التشغيل الفعلي تُزامَن الأسماء من Active Directory أو نظام الموارد البشرية. الأسماء الحالية بيانات تجريبية.</p></div>
+    ${adm?'':`<div class="ro-note">إدارة الأدوار تتطلب صلاحية «إدارة». صلاحيتك الحالية «${LEVELS[level()]}».</div>`}
+    <div class="panel"><div class="tablewrap"><table class="grid"><tr><th>الدور</th><th>المستخدمون (مفصولون بفاصلة)</th><th>صلاحية المنصة</th><th>عدد العناصر</th><th></th></tr>${rows}</table></div>
+      ${adm?`<div><button class="btn primary" data-act="addRole">إضافة دور</button></div>`:''}</div>
+    <div class="panel"><h3>التفويض</h3><p class="hint" style="margin:0">يُسمح بالتفويض فقط على العناصر المعلَّمة «قابلة للتفويض»، ولمدة لا تتجاوز حدها، وبسقف لا يتجاوز سقف المفوِّض.</p>
+      <div class="tablewrap"><table class="grid"><tr><th>العنصر</th><th>من</th><th>إلى</th><th>السقف</th><th>حتى تاريخ</th><th>السبب</th><th></th></tr>${dels}</table></div>
+      ${atLeast('approve')?`<div class="cols" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px">
+        <div class="field"><label for="dn">العنصر</label><select id="dn">${delegable.map(n=>`<option value="${n.id}">${esc(n.name)}</option>`).join('')}</select></div>
+        <div class="field"><label for="df">من</label><select id="df">${roleOptions('')}</select></div>
+        <div class="field"><label for="dt">إلى</label><select id="dt">${roleOptions('')}</select></div>
+        <div class="field"><label for="dd">عدد الأيام</label><input id="dd" inputmode="numeric" value="10"></div>
+        <div class="field"><label for="dl">السقف</label><input id="dl" placeholder="مثال: حتى 10,000 ريال"></div>
+        <div class="field"><label for="dr">السبب</label><input id="dr" placeholder="مثال: إجازة"></div>
+      </div><div><button class="btn primary" data-act="addDeleg">تسجيل التفويض</button></div>`:'<p class="hint">تسجيل التفويض يتطلب صلاحية «اعتماد ونشر» فأعلى.</p>'}
+    </div></div>`;
+}
+
+/* guide & export */
+function stepsOrder(){
+  const order=[], seen=new Set(); const starts=S.nodes.filter(n=>n.type==='start');
+  const queue=[...starts.map(n=>n.id)];
+  while(queue.length){ const id=queue.shift(); if(seen.has(id)) continue; seen.add(id); const n=nodeById(id); if(n) order.push(n); outgoing(id).forEach(e=>queue.push(e.to)); }
+  S.nodes.forEach(n=>{ if(!seen.has(n.id)) order.push(n); });
+  return order;
+}
+function guideView(){
+  const o=ui.guideOpts;
+  const opt=(k,l)=>`<label class="chk"><input type="checkbox" id="g_${k}" data-gopt="${k}" ${o[k]?'checked':''}> ${l}</label>`;
+  return `<div class="page">
+    <div><h2>الدليل والتصدير</h2><p class="lead">يُولَّد دليل الإجراء من النموذج مباشرة: الخريطة، وشرح كل خطوة، ومصفوفة الصلاحيات، والملاحق. المعاينة على اليسار هي ما سيُصدَّر.</p></div>
+    <div class="guide">
+      <div class="panel">
+        <h3>أقسام الدليل</h3>
+        ${opt('map','خريطة العملية')}${opt('steps','وصف الخطوات (الشرح الآلي)')}${opt('matrix','مصفوفة الصلاحيات')}${opt('raci','ملخص المسؤوليات حسب الدور')}${opt('roles','ملحق الأدوار وشاغليها')}${opt('deleg','ملحق التفويضات')}${opt('versions','سجل الإصدارات')}
+        <h3 style="margin-top:6px">التصدير</h3>
+        <button class="btn primary" data-act="exportDocx">تنزيل Word (docx)</button>
+        <button class="btn primary" data-act="exportPdf">تنزيل PDF</button>
+        <button class="btn" data-act="exportPng">صورة الخريطة PNG</button>
+        <h3 style="margin-top:6px">النموذج</h3>
+        <button class="btn" data-act="exportJson">حفظ النموذج JSON</button>
+        <label class="btn" for="importFile" style="justify-content:center">استيراد نموذج JSON</label><input type="file" id="importFile" accept=".json,application/json" hidden>
+        <button class="btn danger" data-act="reset">إعادة تحميل المثال</button>
+        <p class="hint" id="exportStatus" style="margin:0"></p>
+      </div>
+      <div class="paperwrap"><div class="paper" id="paper"><p class="hint">جارٍ تجهيز المعاينة…</p></div></div>
+    </div></div>`;
+}
+async function svgToPng(scale=2){
+  const svg = renderSVG({lit:true});
+  const {W,H}=extent();
+  const img = new Image();
+  const url = 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+  await new Promise((res,rej)=>{ img.onload=res; img.onerror=rej; img.src=url; });
+  const c=document.createElement('canvas'); c.width=W*scale; c.height=H*scale;
+  const ctx=c.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,c.width,c.height); ctx.drawImage(img,0,0,c.width,c.height);
+  const dataUrl=c.toDataURL('image/png');
+  const blob = await new Promise(r=>c.toBlob(r,'image/png'));
+  return {dataUrl, blob, W, H};
+}
+function raciRows(){
+  return S.roles.map(r=>{
+    const R=S.nodes.filter(n=>n.r===r.id).map(n=>n.name), A=S.nodes.filter(n=>n.a===r.id).map(n=>n.name), C=S.nodes.filter(n=>n.c.includes(r.id)).map(n=>n.name), I=S.nodes.filter(n=>n.i.includes(r.id)).map(n=>n.name);
+    return {r,R,A,C,I};
+  }).filter(x=>x.R.length+x.A.length+x.C.length+x.I.length);
+}
+function guideData(){
+  const p=S.process;
+  return {
+    meta:[['اسم الإجراء',p.name],['الرمز',p.code],['مالك الإجراء',roleName(p.owner)],['الإصدار',p.version],['الحالة',p.status==='approved'?'معتمد ونافذ':'مسودة'],['تاريخ الاعتماد',p.approvedAt||'—'],['المعتمد',p.approvedBy||'—'],['المراجع',p.refs||'—']],
+    steps: stepsOrder(),
+    matrixRows: S.nodes.filter(n=>isActor(n.type)).map(n=>[n.code,n.name,TYPES[n.type].short,roleName(n.r)||'—',roleName(n.a)||'—',list(n.c.map(roleName))||'—',list(n.i.map(roleName))||'—',n.limit||'—',n.delegable?('نعم'+(n.delegDays?` (${n.delegDays} يومًا)`:'')):'لا']),
+    raci: raciRows()
+  };
+}
+async function buildPreview(){
+  const el=$('#paper'); if(!el) return;
+  const o=ui.guideOpts, d=guideData(), p=S.process;
+  let png=''; try{ if(o.map) png=(await svgToPng(1.6)).dataUrl; }catch(e){}
+  let h = `<div class="cover"><div class="pcode">${esc(p.code)} · v${esc(p.version)}</div><h1>${esc(p.name)}</h1><p>دليل الإجراء ومصفوفة الصلاحيات</p></div>`;
+  h += `<table class="meta">${d.meta.map(([k,v])=>`<tr><td>${esc(k)}</td><td>${esc(v)}</td></tr>`).join('')}</table>`;
+  h += `<h2>الغرض والنطاق</h2><p><b>الغرض: </b>${esc(p.purpose)}</p><p><b>النطاق: </b>${esc(p.scope)}</p>`;
+  if(o.map) h += `<h2>خريطة العملية</h2>${png?`<img src="${png}" alt="خريطة ${esc(p.name)}">`:'<p>تعذر توليد صورة الخريطة.</p>'}`;
+  if(o.steps) h += `<h2>وصف الخطوات</h2>`+d.steps.map((n,i)=>`<h3>${i+1}. ${esc(n.name)} <span class="pcode">${esc(n.code)}</span></h3><p style="white-space:pre-wrap">${esc(autoText(n))}</p>${n.desc?`<p>${esc(n.desc)}</p>`:''}`).join('');
+  if(o.matrix) h += `<h2>مصفوفة الصلاحيات</h2><table><tr><th>الرمز</th><th>العنصر</th><th>النوع</th><th>المنفذ</th><th>المعتمد</th><th>يُستشار</th><th>يُبلَّغ</th><th>السقف</th><th>تفويض</th></tr>${d.matrixRows.map(r=>`<tr>${r.map((c,i)=>`<td${i===0?' class="pcode"':''}>${esc(c)}</td>`).join('')}</tr>`).join('')}</table>`;
+  if(o.raci) h += `<h2>المسؤوليات حسب الدور</h2><table><tr><th>الدور</th><th>ينفذ</th><th>يعتمد</th><th>يُستشار في</th><th>يُبلَّغ بـ</th></tr>${d.raci.map(x=>`<tr><td>${esc(x.r.name)}</td><td>${esc(x.R.join('، ')||'—')}</td><td>${esc(x.A.join('، ')||'—')}</td><td>${esc(x.C.join('، ')||'—')}</td><td>${esc(x.I.join('، ')||'—')}</td></tr>`).join('')}</table>`;
+  if(o.roles) h += `<h2>ملحق: الأدوار وشاغلوها</h2><table><tr><th>الدور</th><th>الشاغلون</th><th>صلاحية المنصة</th></tr>${S.roles.map(r=>`<tr><td>${esc(r.name)}</td><td>${esc(r.users)}</td><td>${LEVELS[r.level]}</td></tr>`).join('')}</table>`;
+  if(o.deleg) h += `<h2>ملحق: التفويضات النافذة</h2>${S.delegations.length?`<table><tr><th>العنصر</th><th>من</th><th>إلى</th><th>السقف</th><th>حتى</th></tr>${S.delegations.map(x=>`<tr><td>${esc(nodeById(x.nodeId)?.name||'')}</td><td>${esc(roleName(x.from))}</td><td>${esc(roleName(x.to))}</td><td>${esc(x.limit)}</td><td>${esc(x.until)}</td></tr>`).join('')}</table>`:'<p>لا توجد تفويضات.</p>'}`;
+  if(o.versions) h += `<h2>سجل الإصدارات</h2>${S.versions.length?`<table><tr><th>الإصدار</th><th>التاريخ</th><th>بواسطة</th><th>الحالة</th><th>ملخص التغيير</th></tr>${S.versions.map(v=>`<tr><td>${esc(v.v)}</td><td>${esc(v.at)}</td><td>${esc(v.by)}</td><td>${v.status==='approved'?'معتمد':'مسودة'}</td><td>${esc(v.note)}</td></tr>`).join('')}</table>`:'<p>لم تُحفظ إصدارات بعد.</p>'}`;
+  el.innerHTML = h;
+}
+
+/* audit */
+function diffWith(v){
+  const old=JSON.parse(v.snapshot); const res=[];
+  const om=new Map(old.nodes.map(n=>[n.id,n]));
+  S.nodes.forEach(n=>{ const o=om.get(n.id); if(!o) res.push(['أُضيف',n.name]); else {
+    const ch=[]; if(o.name!==n.name) ch.push('الاسم'); if(o.r!==n.r) ch.push(`المنفذ: ${roleName(o.r)||'—'} ← ${roleName(n.r)||'—'}`); if(o.a!==n.a) ch.push(`المعتمد: ${roleName(o.a)||'—'} ← ${roleName(n.a)||'—'}`); if(o.limit!==n.limit) ch.push(`السقف: ${o.limit||'—'} ← ${n.limit||'—'}`); if(o.desc!==n.desc||o.purpose!==n.purpose) ch.push('الوصف');
+    if(ch.length) res.push(['عُدّل',n.name+' — '+ch.join('؛ ')]); } });
+  old.nodes.forEach(o=>{ if(!nodeById(o.id)) res.push(['حُذف',o.name]); });
+  const ek=e=>e.from+'>'+e.to; const oe=new Set(old.edges.map(ek)), ne=new Set(S.edges.map(ek));
+  const addE=[...ne].filter(x=>!oe.has(x)).length, remE=[...oe].filter(x=>!ne.has(x)).length;
+  if(addE||remE) res.push(['المسارات',`+${addE} / −${remE}`]);
+  return res;
+}
+function auditView(){
+  const vs = S.versions.map((v,i)=>`<tr><td class="code">${esc(v.v)}</td><td>${esc(v.at)}</td><td>${esc(v.by)}</td><td><span class="status ${v.status}">${v.status==='approved'?'معتمد':'مسودة'}</span></td><td>${esc(v.note)}</td><td style="white-space:nowrap"><button class="btn" data-compare="${i}">مقارنة</button> ${canEdit()?`<button class="btn" data-restore="${i}">استعادة</button>`:''}</td></tr>`).join('') || `<tr><td colspan="6" class="empty">لم يُحفظ أي إصدار بعد. احفظ الإصدار الأول من النموذج أعلاه.</td></tr>`;
+  let cmp='';
+  if(ui.compareTo!=='' && S.versions[ui.compareTo]){ const d=diffWith(S.versions[ui.compareTo]); cmp = `<div class="panel"><h3>الفرق بين الإصدار ${esc(S.versions[ui.compareTo].v)} والنسخة الحالية</h3>${d.length?`<div class="tablewrap"><table class="grid"><tr><th>التغيير</th><th>العنصر</th></tr>${d.map(([a,b])=>`<tr><td>${esc(a)}</td><td>${esc(b)}</td></tr>`).join('')}</table></div>`:'<p class="empty">لا فروق.</p>'}</div>`; }
+  const logs = S.log.slice(0,200).map(l=>`<tr><td class="code">${esc(l.at)}</td><td>${esc(l.by)}</td><td>${esc(l.action)}</td><td>${esc(l.target)}</td></tr>`).join('');
+  const iss=issues().length;
+  return `<div class="page">
+    <div><h2>الإصدارات والسجل</h2><p class="lead">كل حفظ إصدار يحتفظ بنسخة كاملة من النموذج. الاعتماد يتطلب صلاحية «اعتماد ونشر» وخريطة بلا ملاحظات تحقق.</p></div>
+    <div class="panel"><h3>حفظ إصدار جديد</h3>
+      <div class="tools"><div class="field" style="flex:1;min-width:200px"><label for="vnote">ملخص التغيير</label><input id="vnote" placeholder="مثال: رفع سقف اعتماد العرض الوظيفي" ${canEdit()?'':'disabled'}></div>
+      <label class="chk"><input type="checkbox" id="vmajor" ${canEdit()?'':'disabled'}> تغيير جوهري (يرفع الرقم الرئيسي)</label></div>
+      <div class="tools"><button class="btn primary" data-act="saveVersion" ${canEdit()?'':'disabled'}>حفظ إصدار</button>
+      <button class="btn" data-act="approve" ${atLeast('approve')&&S.process.status!=='approved'?'':'disabled'}>اعتماد الإصدار الحالي</button>
+      <span class="hint">${iss?`يوجد ${iss} ملاحظة تحقق تمنع الاعتماد`:'الخريطة جاهزة للاعتماد'}</span></div></div>
+    <div class="panel"><h3>الإصدارات</h3><div class="tablewrap"><table class="grid"><tr><th>الإصدار</th><th>التاريخ</th><th>بواسطة</th><th>الحالة</th><th>الملخص</th><th></th></tr>${vs}</table></div></div>
+    ${cmp}
+    <div class="panel"><h3>سجل النشاطات</h3><div class="tablewrap" style="max-height:420px;overflow:auto"><table class="grid"><tr><th>الوقت</th><th>المستخدم (الدور)</th><th>الحدث</th><th>الهدف</th></tr>${logs}</table></div></div>
+  </div>`;
+}
+
+/* ---------- canvas interaction ---------- */
+let drag=null;
+function svgPoint(svg, evt){ const pt=svg.createSVGPoint(); pt.x=evt.clientX; pt.y=evt.clientY; return pt.matrixTransform(svg.getScreenCTM().inverse()); }
+function redrawCanvas(){ const svg=$('#canvas'); if(!svg) return; const tmp=document.createElement('div'); tmp.innerHTML=renderSVG({interactive:true}); const fresh=tmp.firstChild; ['viewBox','width','height'].forEach(a=>svg.setAttribute(a,fresh.getAttribute(a))); svg.innerHTML=fresh.innerHTML; }
+function redrawSide(){ const s=$('#side'); if(s) s.innerHTML=sideView(); }
+function bindCanvas(){
+  const svg=$('#canvas'); if(!svg) return;
+  svg.addEventListener('pointerdown', e=>{
+    const h=e.target.closest('[data-handle]'), nd=e.target.closest('[data-node]'), ed=e.target.closest('[data-edge]');
+    const p=svgPoint(svg,e);
+    if(h && canEdit()){ drag={mode:'link', from:h.dataset.handle}; svg.setPointerCapture(e.pointerId); const t=$('#tmpEdge'); const n=nodeById(drag.from); t.setAttribute('x1',n.x); t.setAttribute('y1',n.y); t.setAttribute('x2',p.x); t.setAttribute('y2',p.y); t.setAttribute('visibility','visible'); e.preventDefault(); return; }
+    if(nd){ const n=nodeById(nd.dataset.node); ui.sel=n.id; ui.selEdge=null;
+      if(canEdit()){ drag={mode:'move', id:n.id, dx:p.x-n.x, dy:p.y-n.y, moved:false}; svg.setPointerCapture(e.pointerId); }
+      redrawCanvas(); redrawSide(); e.preventDefault(); return; }
+    if(ed){ ui.selEdge=ed.dataset.edge; ui.sel=null; redrawCanvas(); redrawSide(); return; }
+    ui.sel=null; ui.selEdge=null; redrawCanvas(); redrawSide();
+  });
+  svg.addEventListener('pointermove', e=>{
+    if(!drag) return; const p=svgPoint(svg,e);
+    if(drag.mode==='move'){ const n=nodeById(drag.id); const nx=Math.max(40,Math.round((p.x-drag.dx)/10)*10), ny=Math.max(40,Math.round((p.y-drag.dy)/10)*10); if(nx===n.x&&ny===n.y) return; if(!drag.moved){ snapshot(); drag.moved=true; } n.x=nx; n.y=ny; redrawCanvas(); }
+    else if(drag.mode==='link'){ const t=$('#tmpEdge'); t.setAttribute('x2',p.x); t.setAttribute('y2',p.y); }
+  });
+  svg.addEventListener('pointerup', e=>{
+    if(!drag) return;
+    if(drag.mode==='move' && drag.moved){ commit('تحريك عنصر', nodeById(drag.id)?.name); }
+    if(drag.mode==='link'){
+      const t=$('#tmpEdge'); t.setAttribute('visibility','hidden');
+      const el=document.elementsFromPoint(e.clientX,e.clientY).find(x=>x.closest && x.closest('[data-node]'));
+      const target = el && el.closest('[data-node]').dataset.node;
+      if(target && target!==drag.from) addEdge(drag.from, target);
+    }
+    drag=null;
+  });
+  svg.addEventListener('dragover', e=>{ if(canEdit()) e.preventDefault(); });
+  svg.addEventListener('drop', e=>{ e.preventDefault(); const t=e.dataTransfer.getData('text/plain'); if(TYPES[t]){ const p=svgPoint(svg,e); addNode(t,p.x,p.y); } });
+}
+
+function addNode(type,x,y){
+  if(!canEdit()) return;
+  snapshot();
+  const id=uid('n');
+  const n={id,type,x:Math.round(x/10)*10,y:Math.round(y/10)*10,name:'عنصر جديد: '+TYPES[type].short,code:['start','end'].includes(type)?nextCode('start'):nextCode(type),purpose:'',desc:'',r:'',a:'',c:[],i:[],sla:'',limit:'',limitRef:'',delegable:false,delegDays:'',inputs:'',outputs:'',controls:'',system:'',comments:[]};
+  if(type==='start') n.name='بداية الإجراء'; if(type==='end') n.name='نهاية الإجراء';
+  S.nodes.push(n); ui.sel=id; ui.selEdge=null; ui.sideTab='props';
+  if(S.process.status==='approved') S.process.status='draft';
+  commit('إضافة '+TYPES[type].label, n.name); render();
+  setTimeout(()=>{ const f=$('#f_name'); if(f){ f.focus(); f.select(); } },30);
+}
+function addEdge(from,to){
+  if(S.edges.some(e=>e.from===from&&e.to===to)){ toast('المسار موجود مسبقًا'); return; }
+  snapshot(); S.edges.push({id:uid('e'),from,to,label:''});
+  if(S.process.status==='approved') S.process.status='draft';
+  commit('توصيل', `${nodeById(from).name} ← ${nodeById(to).name}`); render();
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click', async e=>{
+  const t=e.target.closest('button,[data-goto]'); if(!t) return;
+  if(t.dataset.tab){ ui.tab=t.dataset.tab; render(); return; }
+  if(t.dataset.add && canEdit()){ const w=$('#cwrap'); const svg=$('#canvas'); const r=w.getBoundingClientRect(); const p=svgPoint(svg,{clientX:r.left+r.width/2+(Math.random()*60-30), clientY:r.top+r.height/2+(Math.random()*60-30)}); addNode(t.dataset.add,p.x,p.y); return; }
+  if(t.dataset.zoom){ const z=+t.dataset.zoom; ui.zoom = z===0?1:Math.min(2.2,Math.max(.4,ui.zoom*z)); redrawCanvas(); return; }
+  if(t.dataset.side){ ui.sideTab=t.dataset.side; redrawSide(); return; }
+  if(t.dataset.goto){ ui.tab='editor'; ui.sel=t.dataset.goto; ui.selEdge=null; render(); return; }
+  if(t.dataset.chip && canEdit()){ const n=nodeById(ui.sel); const k=t.dataset.chip, r=t.dataset.role; snapshot(); n[k]=n[k].includes(r)?n[k].filter(x=>x!==r):[...n[k],r]; commit(`تعديل ${k==='c'?'المستشارين':'المُبلَّغين'}`, n.name); redrawCanvas(); redrawSide(); return; }
+  if(t.dataset.raci && canEdit()){
+    const n=nodeById(t.dataset.raci), r=t.dataset.role; const cur = n.r===r?'R':n.a===r?'A':n.c.includes(r)?'C':n.i.includes(r)?'I':'';
+    const next={'':'R','R':'A','A':'C','C':'I','I':''}[cur]; snapshot();
+    if(n.r===r) n.r=''; if(n.a===r) n.a=''; n.c=n.c.filter(x=>x!==r); n.i=n.i.filter(x=>x!==r);
+    if(next==='R') n.r=r; if(next==='A') n.a=r; if(next==='C') n.c.push(r); if(next==='I') n.i.push(r);
+    commit(`تعديل الصلاحية في المصفوفة (${next||'إزالة'})`, `${n.name} / ${roleName(r)}`); render(); return;
+  }
+  if(t.dataset.delrole && atLeast('admin')){ const id=t.dataset.delrole; if(S.roles.length<2) return; snapshot(); const nm=roleName(id); S.roles=S.roles.filter(r=>r.id!==id); S.nodes.forEach(n=>{ if(n.r===id)n.r=''; if(n.a===id)n.a=''; n.c=n.c.filter(x=>x!==id); n.i=n.i.filter(x=>x!==id); }); S.delegations=S.delegations.filter(d=>d.from!==id&&d.to!==id); if(S.acting===id) S.acting=S.roles[0].id; commit('حذف دور', nm); render(); return; }
+  if(t.dataset.deldel){ snapshot(); S.delegations=S.delegations.filter(d=>d.id!==t.dataset.deldel); commit('إلغاء تفويض'); render(); return; }
+  if(t.dataset.compare!==undefined){ ui.compareTo=+t.dataset.compare; render(); return; }
+  if(t.dataset.restore!==undefined && canEdit()){ const v=S.versions[+t.dataset.restore]; snapshot(); const old=JSON.parse(v.snapshot); S.nodes=old.nodes; S.edges=old.edges; S.process=Object.assign({},old.process,{status:'draft'}); commit('استعادة إصدار كمسودة', v.v); toast('استُعيد الإصدار '+v.v+' كمسودة'); render(); return; }
+  const act=t.dataset.act; if(!act) return;
+  if(act==='delEdge'){ snapshot(); S.edges=S.edges.filter(x=>x.id!==ui.selEdge); ui.selEdge=null; commit('حذف مسار'); render(); }
+  if(act==='delNode'){ const n=nodeById(ui.sel); snapshot(); S.nodes=S.nodes.filter(x=>x.id!==n.id); S.edges=S.edges.filter(x=>x.from!==n.id&&x.to!==n.id); S.delegations=S.delegations.filter(d=>d.nodeId!==n.id); ui.sel=null; commit('حذف عنصر', n.name); render(); }
+  if(act==='dup'){ const n=nodeById(ui.sel); snapshot(); const c=JSON.parse(JSON.stringify(n)); c.id=uid('n'); c.x+=40; c.y+=90; c.code=nextCode(c.type); c.comments=[]; S.nodes.push(c); ui.sel=c.id; commit('تكرار عنصر', c.name); render(); }
+  if(act==='link'){ const to=$('#linkTo').value; if(to) addEdge(ui.sel,to); }
+  if(act==='copyAuto'){ const txt=$('#autotext').textContent; try{ await navigator.clipboard.writeText(txt); toast('نُسخ النص'); }catch(_){ const r=document.createRange(); r.selectNodeContents($('#autotext')); const s=getSelection(); s.removeAllRanges(); s.addRange(r); toast('حدد النص وانسخه يدويًا'); } }
+  if(act==='comment'){ const v=$('#newComment').value.trim(); if(!v) return; const n=nodeById(ui.sel); n.comments.push({by:roleName(S.acting), at:now(), text:v}); commit('تعليق', n.name); redrawSide(); }
+  if(act==='addRole'){ snapshot(); const id=uid('r'); S.roles.push({id,name:'دور جديد',users:'',level:'view'}); commit('إضافة دور'); render(); setTimeout(()=>{ const f=document.getElementById('rn_'+id); f&&f.focus(); f&&f.select(); },30); }
+  if(act==='addDeleg'){
+    const nodeId=$('#dn').value, from=$('#df').value, to=$('#dt').value, days=parseInt($('#dd').value,10)||0, limit=$('#dl').value.trim(), note=$('#dr').value.trim();
+    const n=nodeById(nodeId);
+    if(!n||!from||!to){ toast('اختر العنصر والمفوِّض والمفوَّض إليه'); return; }
+    if(from===to){ toast('لا يصح التفويض للدور نفسه'); return; }
+    if(n.a!==from && n.r!==from){ toast(`«${roleName(from)}» لا يملك صلاحية على «${n.name}» حتى يفوّضها`); return; }
+    if(n.delegDays && days>+n.delegDays){ toast(`أقصى مدة لتفويض هذا العنصر ${n.delegDays} يومًا`); return; }
+    if(!days){ toast('حدد عدد أيام التفويض'); return; }
+    const d=new Date(); d.setDate(d.getDate()+days); const until=d.toISOString().slice(0,10);
+    snapshot(); S.delegations.push({id:uid('d'),nodeId,from,to,until,limit:limit||'سقف المفوِّض نفسه',note}); commit('تسجيل تفويض', `${n.name}: ${roleName(from)} ← ${roleName(to)}`); toast('سُجّل التفويض حتى '+until); render();
+  }
+  if(act==='saveVersion'){
+    const note=$('#vnote').value.trim()||'بدون ملخص'; const major=$('#vmajor').checked;
+    let [M,m]=S.process.version.split('.').map(Number); if(S.versions.length){ if(major){M++;m=0;} else m++; }
+    S.process.version=`${M}.${m}`; S.process.status='draft';
+    S.versions.unshift({v:S.process.version, at:now(), by:roleName(S.acting), status:'draft', note, snapshot:JSON.stringify({nodes:S.nodes,edges:S.edges,process:S.process})});
+    commit('حفظ إصدار', S.process.version); toast('حُفظ الإصدار '+S.process.version); render();
+  }
+  if(act==='approve'){
+    const iss=issues(); if(iss.length){ toast('لا يمكن الاعتماد: '+iss[0].msg); return; }
+    S.process.status='approved'; S.process.approvedAt=now().slice(0,10); S.process.approvedBy=roleName(S.acting);
+    if(S.versions[0] && S.versions[0].v===S.process.version) S.versions[0].status='approved';
+    else S.versions.unshift({v:S.process.version, at:now(), by:roleName(S.acting), status:'approved', note:'اعتماد', snapshot:JSON.stringify({nodes:S.nodes,edges:S.edges,process:S.process})});
+    commit('اعتماد الإصدار', S.process.version); toast('اعتُمد الإصدار '+S.process.version); render();
+  }
+  if(act==='exportDocx') exportDocx();
+  if(act==='exportPdf') exportPdf();
+  if(act==='exportPng') exportPng();
+  if(act==='exportJson') saveFile(`${S.process.code}-model.json`, JSON.stringify(S,null,2), 'حفظ النموذج');
+  if(act==='reset'){ if(t.dataset.confirm!=='1'){ t.dataset.confirm='1'; t.textContent='تأكيد: سيُستبدل النموذج الحالي'; setTimeout(()=>{ t.dataset.confirm=''; t.textContent='إعادة تحميل المثال'; },4000); return; } S=sample(); undoStack.length=0; ui.sel=null; save(); toast('أُعيد تحميل المثال'); render(); }
+});
+
+document.addEventListener('dragstart', e=>{ const b=e.target.closest && e.target.closest('[data-add]'); if(b) e.dataTransfer.setData('text/plain', b.dataset.add); });
+
+document.addEventListener('input', e=>{
+  const t=e.target;
+  if(t.id==='search'){ ui.query=t.value; if(ui.tab==='editor') redrawCanvas(); return; }
+  if(t.id==='mq'){ ui.matrixQuery=t.value; const pos=t.selectionStart; render(); const m=$('#mq'); m.focus(); m.setSelectionRange(pos,pos); return; }
+  if(!canEdit()) return;
+  if(t.dataset.f && ['INPUT','TEXTAREA'].includes(t.tagName) && t.type!=='checkbox'){ const n=nodeById(ui.sel); if(!n) return; if(!t._snap){ snapshot(); t._snap=1; } n[t.dataset.f]=t.value; redrawCanvas(); save(); return; }
+  if(t.dataset.p && ['INPUT','TEXTAREA'].includes(t.tagName)){ if(!t._snap){ snapshot(); t._snap=1; } S.process[t.dataset.p]=t.value; renderHeader(); save(); return; }
+  if(t.id==='edgeLabel'){ const ed=S.edges.find(x=>x.id===ui.selEdge); if(!t._snap){ snapshot(); t._snap=1; } ed.label=t.value; redrawCanvas(); save(); return; }
+  if(t.dataset.roleF && t.tagName==='INPUT' && atLeast('admin')){ const r=roleById(t.dataset.id); r[t.dataset.roleF]=t.value; save(); renderHeader(); }
+});
+document.addEventListener('change', e=>{
+  const t=e.target;
+  if(t.id==='actingSel'){ S.acting=t.value; save(); log('تبديل الدور', roleName(S.acting)); render(); toast('تعمل الآن بصفة: '+roleName(S.acting)+' ('+LEVELS[level()]+')'); return; }
+  if(t.id==='mtype'){ ui.matrixType=t.value; render(); return; }
+  if(t.dataset.gopt){ ui.guideOpts[t.dataset.gopt]=t.checked; buildPreview(); return; }
+  if(t.id==='importFile'){ const f=t.files[0]; if(!f) return; const rd=new FileReader(); rd.onload=()=>{ try{ const d=JSON.parse(rd.result); if(!d.nodes||!d.roles||!d.process) throw 0; snapshot(); S=Object.assign({delegations:[],versions:[],log:[]},d); log('استيراد نموذج', f.name); save(); toast('استُورد النموذج'); render(); }catch(_){ toast('الملف ليس نموذجًا صالحًا من هذا الاستوديو'); } }; rd.readAsText(f); return; }
+  if(!canEdit()) return;
+  if(t.dataset.f){ const n=nodeById(ui.sel); if(!n) return; if(t.type==='checkbox'){ snapshot(); n[t.dataset.f]=t.checked; }
+    else if(t.tagName==='SELECT'){ snapshot(); n[t.dataset.f]=t.value; }
+    if(S.process.status==='approved') S.process.status='draft';
+    commit('تعديل خاصية: '+(t.closest('.field,.chk')?.querySelector('label')?.textContent||t.dataset.f).trim(), n.name); t._snap=0; redrawCanvas(); if(t.tagName==='SELECT'||t.type==='checkbox') redrawSide(); renderHeader(); return; }
+  if(t.dataset.p){ if(t.tagName==='SELECT'){ snapshot(); S.process[t.dataset.p]=t.value; } commit('تعديل بيانات الإجراء', S.process.name); t._snap=0; renderHeader(); return; }
+  if(t.id==='edgeLabel'){ commit('تعديل شرط مسار', t.value); t._snap=0; return; }
+  if(t.dataset.roleF && atLeast('admin')){ const r=roleById(t.dataset.id); snapshot(); r[t.dataset.roleF]=t.value; commit('تعديل دور', r.name); renderHeader(); if(t.tagName==='SELECT') render(); }
+});
+document.addEventListener('keydown', e=>{
+  const typing = ['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName);
+  if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='z' && !typing){ e.preventDefault(); undo(); }
+  if((e.key==='Delete'||e.key==='Backspace') && !typing && ui.tab==='editor' && canEdit()){
+    if(ui.sel){ const n=nodeById(ui.sel); snapshot(); S.nodes=S.nodes.filter(x=>x.id!==n.id); S.edges=S.edges.filter(x=>x.from!==n.id&&x.to!==n.id); ui.sel=null; commit('حذف عنصر', n.name); render(); }
+    else if(ui.selEdge){ snapshot(); S.edges=S.edges.filter(x=>x.id!==ui.selEdge); ui.selEdge=null; commit('حذف مسار'); render(); }
+  }
+});
+$('#undoBtn').addEventListener('click', ()=>undo());
+function undo(){ if(!undoStack.length||!canEdit()) return; const acting=S.acting; S=JSON.parse(undoStack.pop()); S.acting=acting; if(ui.sel&&!nodeById(ui.sel)) ui.sel=null; save(); toast('تم التراجع'); render(); }
+
+/* ---------- export ---------- */
+function directDownload(filename, data){
+  const blob = data instanceof Blob ? data : new Blob([data], {type: filename.endsWith('.json') ? 'application/json' : 'application/octet-stream'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 4000);
+}
+async function saveFile(filename, data, label){
+  const st=$('#exportStatus');
+  try{
+    directDownload(filename, data);
+    log(label||'تصدير', filename); save(); toast('نُزّل الملف: '+filename); st&&(st.textContent='');
+  }catch(err){ toast('تعذر التنزيل'); st&&(st.textContent='تعذر التنزيل: '+(err&&err.message||'')); }
+}
+async function exportPng(){ try{ const {blob}=await svgToPng(2.5); await saveFile(`${S.process.code}-map.png`, blob, 'تصدير صورة الخريطة'); }catch(_){ toast('تعذر توليد الصورة'); } }
+async function exportPdf(){
+  if(!window.html2pdf){ toast('مكتبة PDF لم تُحمَّل'); return; }
+  const st=$('#exportStatus'); st.textContent='جارٍ توليد PDF…';
+  await buildPreview();
+  const src=$('#paper'); const host=document.createElement('div'); host.style.cssText='position:fixed;inset-inline-start:-10000px;top:0;width:760px;direction:rtl';
+  const clone=src.cloneNode(true); clone.style.boxShadow='none'; clone.style.width='760px'; host.appendChild(clone); document.body.appendChild(host);
+  try{
+    const blob = await window.html2pdf().set({margin:[10,8,12,8], image:{type:'jpeg',quality:.95}, html2canvas:{scale:2, useCORS:true, letterRendering:false, backgroundColor:'#ffffff'}, jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}, pagebreak:{mode:['css','legacy'], avoid:['tr','h3','img']}}).from(clone).outputPdf('blob');
+    await saveFile(`${S.process.code}-guide-v${S.process.version}.pdf`, blob, 'تصدير PDF');
+  }catch(e){ toast('تعذر توليد PDF'); st.textContent='تعذر توليد PDF.'; }
+  finally{ host.remove(); if(st.textContent.startsWith('جارٍ')) st.textContent=''; }
+}
+async function exportDocx(){
+  const D=window.docx; if(!D){ toast('مكتبة Word لم تُحمَّل'); return; }
+  const st=$('#exportStatus'); st.textContent='جارٍ توليد ملف Word…';
+  const o=ui.guideOpts, d=guideData(), p=S.process;
+  const FONT='Arial';
+  const run=(text,opt={})=>new D.TextRun(Object.assign({text:String(text??''), rightToLeft:true, font:FONT, size:22}, opt));
+  const para=(text,opt={},ropt={})=>new D.Paragraph(Object.assign({bidirectional:true, alignment:D.AlignmentType.START, spacing:{after:100, line:320}, children:[run(text,ropt)]},opt));
+  const h1=t=>new D.Paragraph({bidirectional:true, heading:D.HeadingLevel.HEADING_1, spacing:{before:320,after:140}, border:{bottom:{style:D.BorderStyle.SINGLE,size:8,color:'0D6B63',space:4}}, children:[run(t,{bold:true,size:30,color:'0D6B63'})]});
+  const h2=t=>new D.Paragraph({bidirectional:true, heading:D.HeadingLevel.HEADING_2, spacing:{before:200,after:80}, children:[run(t,{bold:true,size:24})]});
+  const cell=(t,head=false,w)=>new D.TableCell({children:[para(t,{spacing:{after:0}},{bold:head,size:19})], shading: head?{fill:'E3EFED',type:D.ShadingType.CLEAR,color:'auto'}:undefined, margins:{top:60,bottom:60,left:90,right:90}, width: w?{size:w,type:D.WidthType.PERCENTAGE}:undefined});
+  const table=(headers,rows,widths)=>new D.Table({visuallyRightToLeft:true, width:{size:100,type:D.WidthType.PERCENTAGE}, rows:[ ...(headers?[new D.TableRow({tableHeader:true, children:headers.map((h,i)=>cell(h,true,widths&&widths[i]))})]:[]), ...rows.map(r=>new D.TableRow({cantSplit:true, children:r.map((c,i)=>cell(c,false,widths&&widths[i]))})) ]});
+  const ch=[];
+  ch.push(new D.Paragraph({bidirectional:true, alignment:D.AlignmentType.CENTER, spacing:{after:60}, children:[run(`${p.code} · الإصدار ${p.version}`,{size:20,color:'56666D'})]}));
+  ch.push(new D.Paragraph({bidirectional:true, alignment:D.AlignmentType.CENTER, spacing:{after:60}, children:[run(p.name,{bold:true,size:40,color:'0D6B63'})]}));
+  ch.push(new D.Paragraph({bidirectional:true, alignment:D.AlignmentType.CENTER, spacing:{after:300}, children:[run('دليل الإجراء ومصفوفة الصلاحيات',{size:24})]}));
+  ch.push(table(null, d.meta.map(([k,v])=>[k,v]), [30,70]));
+  ch.push(h1('الغرض والنطاق')); ch.push(para('الغرض: '+p.purpose)); ch.push(para('النطاق: '+p.scope));
+  if(o.map){ try{ const {blob,W,H}=await svgToPng(2); const buf=await blob.arrayBuffer(); const w=600, h=Math.round(H*w/W);
+      ch.push(new D.Paragraph({children:[], pageBreakBefore:true})); ch.push(h1('خريطة العملية'));
+      ch.push(new D.Paragraph({alignment:D.AlignmentType.CENTER, children:[new D.ImageRun({data:buf, transformation:{width:w,height:h}})]})); }catch(_){ ch.push(para('تعذر إدراج صورة الخريطة.')); } }
+  if(o.steps){ ch.push(h1('وصف الخطوات')); d.steps.forEach((n,i)=>{ ch.push(h2(`${i+1}. ${n.name}  (${n.code})`)); autoText(n).split('\n').forEach(l=>ch.push(para(l))); if(n.desc) ch.push(para(n.desc,{},{italics:false,color:'333333'})); }); }
+  if(o.matrix){ ch.push(h1('مصفوفة الصلاحيات')); ch.push(table(['الرمز','العنصر','النوع','المنفذ','المعتمد','يُستشار','يُبلَّغ','السقف','تفويض'], d.matrixRows)); }
+  if(o.raci){ ch.push(h1('المسؤوليات حسب الدور')); ch.push(table(['الدور','ينفذ','يعتمد','يُستشار في','يُبلَّغ بـ'], d.raci.map(x=>[x.r.name,x.R.join('، ')||'—',x.A.join('، ')||'—',x.C.join('، ')||'—',x.I.join('، ')||'—']))); }
+  if(o.roles){ ch.push(h1('ملحق: الأدوار وشاغلوها')); ch.push(table(['الدور','الشاغلون','صلاحية المنصة'], S.roles.map(r=>[r.name,r.users,LEVELS[r.level]]),[30,50,20])); }
+  if(o.deleg){ ch.push(h1('ملحق: التفويضات النافذة')); ch.push(S.delegations.length?table(['العنصر','من','إلى','السقف','حتى'], S.delegations.map(x=>[nodeById(x.nodeId)?.name||'',roleName(x.from),roleName(x.to),x.limit,x.until])):para('لا توجد تفويضات.')); }
+  if(o.versions){ ch.push(h1('سجل الإصدارات')); ch.push(S.versions.length?table(['الإصدار','التاريخ','بواسطة','الحالة','ملخص التغيير'], S.versions.map(v=>[v.v,v.at,v.by,v.status==='approved'?'معتمد':'مسودة',v.note])):para('لم تُحفظ إصدارات بعد.')); }
+  try{
+    const doc=new D.Document({creator:'Masar Process Studio', title:p.name, styles:{default:{document:{run:{font:FONT, rightToLeft:true}}}},
+      sections:[{properties:{page:{margin:{top:1000,bottom:1000,left:900,right:900}}},
+        headers:{default:new D.Header({children:[new D.Paragraph({bidirectional:true, alignment:D.AlignmentType.START, children:[run(`${p.name} — ${p.code} — الإصدار ${p.version}`,{size:16,color:'777777'})]})]})},
+        footers:{default:new D.Footer({children:[new D.Paragraph({alignment:D.AlignmentType.CENTER, children:[new D.TextRun({children:[D.PageNumber.CURRENT], size:16, font:FONT})]})]})},
+        children:ch}]});
+    const blob=await D.Packer.toBlob(doc);
+    st.textContent='';
+    await saveFile(`${p.code}-guide-v${p.version}.docx`, blob, 'تصدير Word');
+  }catch(e){ st.textContent='تعذر توليد ملف Word.'; toast('تعذر توليد ملف Word'); }
+}
+
+/* ---------- boot ---------- */
+render();
+})();
+</script>
+
+</body>
+</html>
