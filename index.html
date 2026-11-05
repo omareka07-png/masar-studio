@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="استوديو مَسار: رسم العمليات المؤسسية من الهيكل الوظيفي، وتحديد الصلاحيات، وتوليد الأدلة بصيغتي Word وPDF.">
+<meta name="description" content="استوديو مَسار: رسم العمليات المؤسسية من الهيكل الوظيفي، وتحديد الصلاحيات، وتصدير الأدلة والجداول والخرائط بتسع صيغ.">
 <style>[hidden]{display:none!important}body{margin:0}img{max-width:100%}</style>
 <title>استوديو مَسار للعمليات</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -51,7 +51,7 @@ button{cursor:pointer}
 .tabs{display:flex;gap:2px;flex-wrap:wrap}
 .tab{border:0;background:none;padding:7px 12px;border-radius:var(--r-sm);color:var(--muted);font-weight:500}
 .tab[aria-selected="true"]{background:var(--accent-soft);color:var(--ink);font-weight:600}
-.acting{margin-inline-start:auto;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.acting{margin-inline-start:auto;display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
 .acting select{padding:5px 8px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--surface)}
 .lvl{font-size:11.5px;padding:2px 8px;border-radius:99px;background:var(--surface-2);color:var(--ink);white-space:nowrap}
 
@@ -203,6 +203,18 @@ table.grid td input,table.grid td select,table.grid td textarea{width:100%;borde
 .logobox img{max-height:60px;width:auto}
 .paper .logo{max-height:64px;width:auto;border:0;margin:0 0 10px}
 @media (max-width:980px){.swatches{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* export centre */
+.guide{grid-template-columns:minmax(0,370px) minmax(0,1fr)}
+.xgroup{display:flex;flex-direction:column;gap:6px}
+.xgroup h4{margin:6px 0 0;font-size:12px;color:var(--muted);font-weight:600}
+.xrow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center;padding:7px 8px;border:1px solid var(--line);border-radius:var(--r);background:var(--bg)}
+.xinfo{display:flex;flex-direction:column;min-width:0;line-height:1.45}
+.xinfo b{font-size:13px;font-weight:600}
+.xinfo span{font-size:11.5px;color:var(--muted)}
+.xrow .btn{padding:5px 9px;white-space:nowrap}
+.xext{font-family:var(--f-mono);font-size:11px;color:var(--muted);direction:ltr;unicode-bidi:isolate}
+.xbundle{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:4px}
 
 /* toast */
 .toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));inset-inline-start:50%;transform:translateX(50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:var(--r);font-size:13px;z-index:50;max-width:calc(100% - 32px)}
@@ -504,6 +516,7 @@ function migrate(){ S.appearance=Object.assign({}, AP_DEFAULT, S.appearance||{})
 migrate();
 Object.assign(ui,{orgText:null, orgMsg:'', draft:null, draftMeta:{}, orgOpts:{name:'إجراء التوظيف', code:'HR-03', kw:'وظيف، مرشح، متقدم، مقابل، احتياج، الموظف الجديد', dept:'', gateways:true, mergeRoles:true}, ai:null, aiBusy:false});
 ui.guideOpts.method=true;
+ui.bundle={docx:true,pdf:true,html:false,xlsx:true,csv:false,png:true,svg:false,bpmn:true,json:true}; ui.exporting=false;
 const undoStack = [];
 function save(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(S)); }catch(e){} }
 function snapshot(){ undoStack.push(JSON.stringify(S)); if(undoStack.length>60) undoStack.shift(); }
@@ -872,7 +885,7 @@ function matrixView(){
   return `<div class="page">
     <div><h2>مصفوفة صلاحيات العملية</h2><p class="lead">كل صف عنصر في الخريطة وكل عمود دور. انقر الخلية للتبديل بين منفذ ومعتمد ومستشار ومُبلَّغ؛ التغيير ينعكس على الخريطة والدليل فورًا.</p></div>
     <div class="panel">
-      <div class="tools"><input class="search" id="mq" type="search" placeholder="تصفية بالاسم أو الرمز" value="${esc(ui.matrixQuery)}" aria-label="تصفية">
+      <div class="tools"><button class="btn" type="button" data-act="exportXlsx">تصدير Excel</button><button class="btn" type="button" data-act="exportCsv">تصدير CSV</button><input class="search" id="mq" type="search" placeholder="تصفية بالاسم أو الرمز" value="${esc(ui.matrixQuery)}" aria-label="تصفية">
         <select id="mtype" class="search" style="width:auto" aria-label="نوع العنصر"><option value="all">كل الأنواع</option>${['task','service','decision','xor','and','sub'].map(k=>`<option value="${k}" ${ui.matrixType===k?'selected':''}>${TYPES[k].short}</option>`).join('')}</select>
         <div class="legend"><span><button class="raci R" tabindex="-1" disabled>R</button> منفذ</span><span><button class="raci A" tabindex="-1" disabled>A</button> معتمد</span><span><button class="raci C" tabindex="-1" disabled>C</button> يُستشار</span><span><button class="raci I" tabindex="-1" disabled>I</button> يُبلَّغ</span></div></div>
       <div class="tablewrap"><table class="grid">${head}${body}</table></div>
@@ -927,20 +940,15 @@ function guideView(){
   const o=ui.guideOpts;
   const opt=(k,l)=>`<label class="chk"><input type="checkbox" id="g_${k}" data-gopt="${k}" ${o[k]?'checked':''}> ${l}</label>`;
   return `<div class="page">
-    <div><h2>الدليل والتصدير</h2><p class="lead">يُولَّد دليل الإجراء من النموذج مباشرة: الخريطة، وشرح كل خطوة، ومصفوفة الصلاحيات، والملاحق. المعاينة على اليسار هي ما سيُصدَّر.</p></div>
+    <div><h2>الدليل والتصدير</h2><p class="lead">يُولَّد دليل الإجراء من النموذج مباشرة: الخريطة، وشرح كل خطوة، ومصفوفة الصلاحيات، والملاحق. صدّره بتسع صيغ منفردة أو في حزمة واحدة. المعاينة هي ما سيظهر في Word وPDF وHTML.</p></div>
     <div class="guide">
       <div class="panel">
         <h3>أقسام الدليل</h3>
         ${opt('map','خريطة العملية')}${opt('steps','وصف الخطوات (الشرح الآلي)')}${opt('matrix','مصفوفة الصلاحيات')}${opt('raci','ملخص المسؤوليات حسب الدور')}${opt('roles','ملحق الأدوار وشاغليها')}${opt('deleg','ملحق التفويضات')}${opt('method','منهجية البناء')}${opt('versions','سجل الإصدارات')}
-        <h3 style="margin-top:6px">التصدير</h3>
-        <button class="btn primary" data-act="exportDocx">تنزيل Word (docx)</button>
-        <button class="btn primary" data-act="exportPdf">تنزيل PDF</button>
-        <button class="btn" data-act="exportPng">صورة الخريطة PNG</button>
+        ${exportCentre()}
         <h3 style="margin-top:6px">النموذج</h3>
-        <button class="btn" data-act="exportJson">حفظ النموذج JSON</button>
         <label class="btn" for="importFile" style="justify-content:center">استيراد نموذج JSON</label><input type="file" id="importFile" accept=".json,application/json" hidden>
         <button class="btn danger" data-act="reset">إعادة تحميل المثال</button>
-        <p class="hint" id="exportStatus" style="margin:0"></p>
       </div>
       <div class="paperwrap"><div class="paper" id="paper"><p class="hint">جارٍ تجهيز المعاينة…</p></div></div>
     </div></div>`;
@@ -1019,7 +1027,7 @@ function auditView(){
       <span class="hint">${iss?`يوجد ${iss} ملاحظة تحقق تمنع الاعتماد`:'الخريطة جاهزة للاعتماد'}</span></div></div>
     <div class="panel"><h3>الإصدارات</h3><div class="tablewrap"><table class="grid"><tr><th>الإصدار</th><th>التاريخ</th><th>بواسطة</th><th>الحالة</th><th>الملخص</th><th></th></tr>${vs}</table></div></div>
     ${cmp}
-    <div class="panel"><h3>سجل النشاطات</h3><div class="tablewrap" style="max-height:420px;overflow:auto"><table class="grid"><tr><th>الوقت</th><th>المستخدم (الدور)</th><th>الحدث</th><th>الهدف</th></tr>${logs}</table></div></div>
+    <div class="panel"><div class="tools" style="justify-content:space-between"><h3>سجل النشاطات</h3><button class="btn" type="button" data-act="exportXlsx">تصدير السجل والإصدارات Excel</button></div><div class="tablewrap" style="max-height:420px;overflow:auto"><table class="grid"><tr><th>الوقت</th><th>المستخدم (الدور)</th><th>الحدث</th><th>الهدف</th></tr>${logs}</table></div></div>
   </div>`;
 }
 
@@ -1103,6 +1111,7 @@ document.addEventListener('click', async e=>{
   if(t.id==='themeBtn'){ const nx={system:'light',light:'dark',dark:'system'}[AP().mode]; setAp({mode:nx},{full:ui.tab==='appearance'}); toast({system:'الوضع التلقائي',light:'الوضع الفاتح',dark:'الوضع الداكن'}[nx]); return; }
   if(t.dataset.preset){ const pr=AP_PRESETS.find(x=>x.id===t.dataset.preset); setAp({preset:pr.id, accent:pr.accent, decision:pr.decision, gateway:pr.gateway},{full:true}); return; }
   if(t.dataset.apseg){ let v=t.dataset.val; if(t.dataset.apseg==='scale') v=+v; setAp({[t.dataset.apseg]:v},{full:true}); return; }
+  if(t.dataset.export){ runExport(t.dataset.export); return; }
   const act=t.dataset.act; if(!act) return;
   if(act==='apLogoDel'){ setAp({logo:'',logoW:0,logoH:0},{full:true}); return; }
   if(act==='apReset'){ if(t.dataset.confirm!=='1'){ t.dataset.confirm='1'; t.textContent='تأكيد الاستعادة'; setTimeout(()=>{ if(t.isConnected){ t.dataset.confirm=''; t.textContent='استعادة الافتراضي'; } },4000); return; } S.appearance=Object.assign({},AP_DEFAULT); save(); applyAppearance(); render(); toast('استُعيد المظهر الافتراضي'); return; }
@@ -1147,10 +1156,13 @@ document.addEventListener('click', async e=>{
     else S.versions.unshift({v:S.process.version, at:now(), by:roleName(S.acting), status:'approved', note:'اعتماد', snapshot:JSON.stringify({nodes:S.nodes,edges:S.edges,process:S.process})});
     commit('اعتماد الإصدار', S.process.version); toast('اعتُمد الإصدار '+S.process.version); render();
   }
-  if(act==='exportDocx') exportDocx();
-  if(act==='exportPdf') exportPdf();
-  if(act==='exportPng') exportPng();
-  if(act==='exportJson') saveFile(`${S.process.code}-model.json`, JSON.stringify(S,null,2), 'حفظ النموذج');
+  if(act==='exportDocx') runExport('docx');
+  if(act==='exportBundle') exportBundle();
+  if(act==='exportXlsx') runExport('xlsx');
+  if(act==='exportCsv') runExport('csv');
+  if(act==='exportPdf') runExport('pdf');
+  if(act==='exportPng') runExport('png');
+  if(act==='exportJson') runExport('json');
   if(act==='reset'){ if(t.dataset.confirm!=='1'){ t.dataset.confirm='1'; t.textContent='تأكيد: سيُستبدل النموذج الحالي'; setTimeout(()=>{ t.dataset.confirm=''; t.textContent='إعادة تحميل المثال'; },4000); return; } S=sample(); migrate(); undoStack.length=0; ui.sel=null; save(); toast('أُعيد تحميل المثال'); render(); }
 });
 
@@ -1177,6 +1189,7 @@ document.addEventListener('change', e=>{
   if(t.id==='actingSel'){ S.acting=t.value; save(); log('تبديل الدور', roleName(S.acting)); render(); toast('تعمل الآن بصفة: '+roleName(S.acting)+' ('+LEVELS[level()]+')'); return; }
   if(t.id==='mtype'){ ui.matrixType=t.value; render(); return; }
   if(t.dataset.gopt){ ui.guideOpts[t.dataset.gopt]=t.checked; buildPreview(); return; }
+  if(t.dataset.bundle){ ui.bundle[t.dataset.bundle]=t.checked; return; }
   if(t.dataset.aps){ setAp({[t.dataset.aps]:t.value},{full:true}); return; }
   if(t.dataset.apb){ setAp({[t.dataset.apb]:t.checked},{canvas:true}); return; }
   if(t.id==='ap_docsame'){ setAp({docColor: t.checked?'':AP().accent},{full:true}); return; }
@@ -1234,9 +1247,9 @@ async function exportPdf(){
   }catch(e){ toast('تعذر توليد PDF'); st.textContent='تعذر توليد PDF.'; }
   finally{ host.remove(); if(st.textContent.startsWith('جارٍ')) st.textContent=''; }
 }
-async function exportDocx(){
-  const D=window.docx; if(!D){ toast('مكتبة Word لم تُحمَّل'); return; }
-  const st=$('#exportStatus'); st.textContent='جارٍ توليد ملف Word…';
+async function exportDocx(returnBlob){
+  const D=window.docx; if(!D){ if(returnBlob) throw new Error('docx-lib'); toast('مكتبة Word لم تُحمَّل'); return; }
+  const st=$('#exportStatus')||{textContent:''}; if(!returnBlob) st.textContent='جارٍ توليد ملف Word…';
   const o=ui.guideOpts, d=guideData(), p=S.process;
   const FONT='Arial';
   const run=(text,opt={})=>new D.TextRun(Object.assign({text:String(text??''), rightToLeft:true, font:FONT, size:22}, opt));
@@ -1274,9 +1287,10 @@ async function exportDocx(){
         footers:{default:new D.Footer({children:[new D.Paragraph({alignment:D.AlignmentType.CENTER, children:[new D.TextRun({children:[D.PageNumber.CURRENT], size:16, font:FONT})]})]})},
         children:ch}]});
     const blob=await D.Packer.toBlob(doc);
+    if(returnBlob) return blob;
     st.textContent='';
     await saveFile(`${p.code}-guide-v${p.version}.docx`, blob, 'تصدير Word');
-  }catch(e){ st.textContent='تعذر توليد ملف Word.'; toast('تعذر توليد ملف Word'); }
+  }catch(e){ if(returnBlob) throw e; st.textContent='تعذر توليد ملف Word.'; toast('تعذر توليد ملف Word'); }
 }
 
 /* ---------- swimlanes ---------- */
@@ -1734,6 +1748,206 @@ function methodView(){
 document.addEventListener('dragover', e=>{ const z=e.target.closest && e.target.closest('#orgDrop'); if(z){ e.preventDefault(); z.classList.add('over'); } });
 document.addEventListener('dragleave', e=>{ const z=e.target.closest && e.target.closest('#orgDrop'); if(z) z.classList.remove('over'); });
 document.addEventListener('drop', e=>{ const z=e.target.closest && e.target.closest('#orgDrop'); if(z){ e.preventDefault(); z.classList.remove('over'); const f=e.dataTransfer.files&&e.dataTransfer.files[0]; if(f) handleOrgFile(f); } });
+
+/* ---------- export centre: extra formats ---------- */
+const DL_OK = ['gif','png','jpg','jpeg','webp','mp4','webm','txt','json','md','docx','pptx','epub','csv','ttf','html','svg','pdf','xlsx','zip'];
+const xmlEsc = s => String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
+const fileBase = () => `${(S.process.code||'process').replace(/[^\w؀-ۿ-]+/g,'-')}-v${S.process.version}`;
+const typeLabel = t => (TYPES[t]||{}).label || t;
+function blobBytes(b){ if(b && b.arrayBuffer) return b.arrayBuffer(); return new Promise((res,rej)=>{ const fr=new FileReader(); fr.onload=()=>res(fr.result); fr.onerror=rej; fr.readAsArrayBuffer(b); }); }
+function setExportStatus(msg){ const st=$('#exportStatus'); if(st) st.textContent=msg||''; }
+async function loadJSZip(){
+  if(window.JSZip) return window.JSZip;
+  await new Promise((res,rej)=>{ const s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js'; s.onload=res; s.onerror=rej; document.head.appendChild(s); });
+  if(!window.JSZip) throw new Error('jszip'); return window.JSZip;
+}
+
+/* rows shared by Excel and CSV */
+function stepRows(){
+  return stepsOrder().map((n,i)=>({
+    '#':i+1, 'الرمز':n.code, 'العنصر':n.name, 'النوع':typeLabel(n.type),
+    'المنفذ (R)':roleName(n.r), 'المعتمد (A)':roleName(n.a), 'يُستشار (C)':n.c.map(roleName).join('، '), 'يُبلَّغ (I)':n.i.map(roleName).join('، '),
+    'الغرض':n.purpose||'', 'المدخلات':n.inputs||'', 'المخرجات':n.outputs||'', 'المدة المعيارية':n.sla||'',
+    'سقف الصلاحية':n.limit||'', 'مرجع اللائحة':n.limitRef||'', 'قابل للتفويض':n.delegable?'نعم':'لا', 'أقصى مدة للتفويض (يوم)':n.delegDays||'',
+    'النظام':n.system||'', 'نقطة الضبط':n.controls||'', 'المسارات التالية':outgoing(n.id).map(e=>(nodeById(e.to)||{}).code+(e.label?` (${e.label})`:'')).join('، '),
+    'الشرح الآلي':autoText(n), 'وصف إضافي':n.desc||''
+  }));
+}
+function raciGrid(){
+  const head=['الرمز','العنصر','النوع',...S.roles.map(r=>r.name),'السقف'];
+  const rows=S.nodes.filter(n=>isActor(n.type)).map(n=>[n.code,n.name,TYPES[n.type].short,...S.roles.map(r=>n.r===r.id?'R':n.a===r.id?'A':n.c.includes(r.id)?'C':n.i.includes(r.id)?'I':''),n.limit||'']);
+  return [head,...rows];
+}
+function csvOf(rows){ return '﻿'+rows.map(r=>r.map(v=>{ v=String(v??''); return /[",\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; }).join(',')).join('\r\n'); }
+
+/* Excel workbook */
+async function buildXlsx(){
+  const X=await loadLib('XLSX'); const p=S.process, wb=X.utils.book_new();
+  const add=(name, aoa, widths)=>{ const ws=X.utils.aoa_to_sheet(aoa); if(widths) ws['!cols']=widths.map(w=>({wch:w})); if(aoa.length>1) ws['!autofilter']={ref:X.utils.encode_range({s:{r:0,c:0},e:{r:aoa.length-1,c:(aoa[0]||[]).length-1}})}; X.utils.book_append_sheet(wb, ws, name.slice(0,31)); };
+  const meta=guideData().meta;
+  add('بيانات الإجراء', [['البند','القيمة'], ...meta, ['الغرض',p.purpose], ['النطاق',p.scope], ['اسم الجهة',AP().orgName||''], ['تاريخ التصدير',now()]], [22,80]);
+  const steps=stepRows(); const sh=Object.keys(steps[0]||{'#':''});
+  add('الخطوات', [sh, ...steps.map(r=>sh.map(k=>r[k]))], [4,14,30,14,22,22,24,24,30,24,24,14,24,16,10,10,18,24,24,70,40]);
+  const g=raciGrid(); add('مصفوفة RACI', g, [14,30,12,...S.roles.map(()=>14),26]);
+  add('صلاحيات المنصة', [['الدور',...LEVEL_ORDER.map(l=>LEVELS[l])], ...S.roles.map(r=>[r.name,...LEVEL_ORDER.map(l=>LEVEL_ORDER.indexOf(r.level)>=LEVEL_ORDER.indexOf(l)?'✓':'')])], [26,10,10,10,14,10]);
+  add('الأدوار', [['الدور','الشاغلون','صلاحية المنصة','عدد العناصر'], ...S.roles.map(r=>[r.name,r.users,LEVELS[r.level],S.nodes.filter(n=>n.r===r.id||n.a===r.id||n.c.includes(r.id)||n.i.includes(r.id)).length])], [26,40,14,12]);
+  add('التفويضات', [['العنصر','من','إلى','السقف','حتى','السبب'], ...S.delegations.map(d=>[(nodeById(d.nodeId)||{}).name||'',roleName(d.from),roleName(d.to),d.limit,d.until,d.note||''])], [30,22,22,22,12,24]);
+  add('منهجية البناء', [['#','المرحلة','ما يتم فيها','المخرج','الحالة','ملاحظات'], ...METHOD.map((m,i)=>[i+1,m.title,m.desc,m.out,S.method[m.id]&&S.method[m.id].done?'مكتملة':'',(S.method[m.id]||{}).note||''])], [4,28,70,24,10,30]);
+  add('الإصدارات', [['الإصدار','التاريخ','بواسطة','الحالة','ملخص التغيير'], ...S.versions.map(v=>[v.v,v.at,v.by,v.status==='approved'?'معتمد':'مسودة',v.note])], [10,18,22,10,50]);
+  add('سجل النشاطات', [['الوقت','المستخدم (الدور)','الحدث','الهدف'], ...S.log.map(l=>[l.at,l.by,l.action,l.target])], [18,24,34,50]);
+  wb.Workbook={Views:[{RTL:true}]}; wb.Props={Title:p.name, Author:AP().orgName||'Masar Process Studio'};
+  return new Blob([X.write(wb,{bookType:'xlsx',type:'array'})], {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+}
+
+/* SVG */
+function buildSvgText(){ return '<?xml version="1.0" encoding="UTF-8"?>\n'+renderSVG({lit:true}).replace('<svg ','<svg font-family="Arial, Tahoma, sans-serif" '); }
+
+/* BPMN 2.0 XML with diagram interchange */
+function buildBpmn(){
+  const p=S.process, pid='Process_'+(p.code||'1').replace(/[^\w-]/g,'_'), lanes=lanesOn();
+  const ids={}; S.nodes.forEach(n=>ids[n.id]=(n.code||n.id).replace(/[^\w-]/g,'_'));
+  const tag={start:'startEvent', end:'endEvent', task:'userTask', decision:'userTask', service:'serviceTask', xor:'exclusiveGateway', and:'parallelGateway', sub:'callActivity'};
+  const flows=S.edges.filter(e=>{ const a=nodeById(e.from), b=nodeById(e.to); return a&&b&&a.type!=='doc'&&b.type!=='doc'; });
+  const dataEdges=S.edges.filter(e=>{ const a=nodeById(e.from), b=nodeById(e.to); return a&&b&&a.type==='doc'&&b.type!=='doc'; });
+  const fid=e=>'Flow_'+e.id.replace(/[^\w-]/g,'_');
+  const ext=n=>{
+    const attrs=[`code="${xmlEsc(n.code)}"`,`kind="${n.type}"`, n.sla?`sla="${xmlEsc(n.sla)}"`:'', n.limit?`limit="${xmlEsc(n.limit)}"`:'', n.limitRef?`limitRef="${xmlEsc(n.limitRef)}"`:'', `delegable="${!!n.delegable}"`, n.delegDays?`delegDays="${xmlEsc(n.delegDays)}"`:''].filter(Boolean).join(' ');
+    const raci=isActor(n.type)?`\n        <masar:raci r="${xmlEsc(roleName(n.r))}" a="${xmlEsc(roleName(n.a))}" c="${xmlEsc(n.c.map(roleName).join('، '))}" i="${xmlEsc(n.i.map(roleName).join('، '))}"/>`:'';
+    return `\n      <bpmn:extensionElements>\n        <masar:meta ${attrs}/>${raci}${n.controls?`\n        <masar:control>${xmlEsc(n.controls)}</masar:control>`:''}\n      </bpmn:extensionElements>`;
+  };
+  let proc='';
+  if(lanes){
+    proc+=`\n    <bpmn:laneSet id="LaneSet_1">`;
+    const laneOf=n=>{ let best=0,dist=Infinity; S.process.laneOrder.forEach((_,i)=>{ const d=Math.abs(laneCenter(i)-n.y); if(d<dist){dist=d;best=i;} }); return best; };
+    S.process.laneOrder.forEach((rid,i)=>{ proc+=`\n      <bpmn:lane id="Lane_${i+1}" name="${xmlEsc(roleName(rid))}">${S.nodes.filter(n=>n.type!=='doc'&&laneOf(n)===i).map(n=>`\n        <bpmn:flowNodeRef>${ids[n.id]}</bpmn:flowNodeRef>`).join('')}\n      </bpmn:lane>`; });
+    proc+=`\n    </bpmn:laneSet>`;
+  }
+  S.nodes.forEach(n=>{
+    if(n.type==='doc'){ proc+=`\n    <bpmn:dataObject id="DO_${ids[n.id]}"/>\n    <bpmn:dataObjectReference id="${ids[n.id]}" name="${xmlEsc(n.name)}" dataObjectRef="DO_${ids[n.id]}"/>`; return; }
+    const t=tag[n.type]||'task';
+    const inc=flows.filter(e=>e.to===n.id).map(e=>`\n      <bpmn:incoming>${fid(e)}</bpmn:incoming>`).join('');
+    const out=flows.filter(e=>e.from===n.id).map(e=>`\n      <bpmn:outgoing>${fid(e)}</bpmn:outgoing>`).join('');
+    const doc=`\n      <bpmn:documentation>${xmlEsc(autoText(n)+(n.desc?'\n'+n.desc:''))}</bpmn:documentation>`;
+    const din=dataEdges.filter(e=>e.to===n.id).map(e=>`\n      <bpmn:dataInputAssociation id="DIA_${fid(e)}">\n        <bpmn:sourceRef>${ids[e.from]}</bpmn:sourceRef>\n      </bpmn:dataInputAssociation>`).join('');
+    proc+=`\n    <bpmn:${t} id="${ids[n.id]}" name="${xmlEsc(n.name)}">${doc}${ext(n)}${inc}${out}${din}\n    </bpmn:${t}>`;
+  });
+  flows.forEach(e=>{
+    const a=nodeById(e.from);
+    const cond = e.label && (a.type==='xor'||a.type==='decision') ? `\n      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${xmlEsc(e.label)}</bpmn:conditionExpression>` : '';
+    proc+=`\n    <bpmn:sequenceFlow id="${fid(e)}" name="${xmlEsc(e.label||'')}" sourceRef="${ids[e.from]}" targetRef="${ids[e.to]}">${cond}\n    </bpmn:sequenceFlow>`;
+  });
+  // diagram interchange
+  const {W,H}=extent(); const r=v=>Math.round(v);
+  let di='';
+  if(lanes){
+    const n=S.process.laneOrder.length;
+    di+=`\n      <bpmndi:BPMNShape id="Participant_1_di" bpmnElement="Participant_1" isHorizontal="true">\n        <dc:Bounds x="10" y="${LANE_TOP}" width="${W-20}" height="${n*LANE_H}"/>\n      </bpmndi:BPMNShape>`;
+    S.process.laneOrder.forEach((_,i)=>{ di+=`\n      <bpmndi:BPMNShape id="Lane_${i+1}_di" bpmnElement="Lane_${i+1}" isHorizontal="true">\n        <dc:Bounds x="40" y="${LANE_TOP+i*LANE_H}" width="${W-50}" height="${LANE_H}"/>\n      </bpmndi:BPMNShape>`; });
+  }
+  S.nodes.forEach(n=>{
+    const d=dims(n); const w=n.type==='doc'?36:d.w, h=n.type==='doc'?50:d.h;
+    const isGw=n.type==='xor'||n.type==='and'; const gw=isGw?50:w, gh=isGw?50:h;
+    di+=`\n      <bpmndi:BPMNShape id="${ids[n.id]}_di" bpmnElement="${ids[n.id]}"${isGw?' isMarkerVisible="true"':''}>\n        <dc:Bounds x="${r(n.x-gw/2)}" y="${r(n.y-gh/2)}" width="${r(gw)}" height="${r(gh)}"/>\n      </bpmndi:BPMNShape>`;
+  });
+  const wp=(e)=>{ const a=nodeById(e.from), b=nodeById(e.to); const p1=boundary(a,b.x,b.y), p2=boundary(b,a.x,a.y); return `\n        <di:waypoint x="${r(p1.x)}" y="${r(p1.y)}"/>\n        <di:waypoint x="${r(p2.x)}" y="${r(p2.y)}"/>`; };
+  flows.forEach(e=>{ di+=`\n      <bpmndi:BPMNEdge id="${fid(e)}_di" bpmnElement="${fid(e)}">${wp(e)}\n      </bpmndi:BPMNEdge>`; });
+  dataEdges.forEach(e=>{ di+=`\n      <bpmndi:BPMNEdge id="DIA_${fid(e)}_di" bpmnElement="DIA_${fid(e)}">${wp(e)}\n      </bpmndi:BPMNEdge>`; });
+  const collab = lanes ? `\n  <bpmn:collaboration id="Collaboration_1">\n    <bpmn:participant id="Participant_1" name="${xmlEsc(p.name)}" processRef="${pid}"/>\n  </bpmn:collaboration>` : '';
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:masar="https://masar.studio/schema/1.0" id="Definitions_1" targetNamespace="https://masar.studio/bpmn" exporter="Masar Process Studio" exporterVersion="1.0">${collab}
+  <bpmn:process id="${pid}" name="${xmlEsc(p.name)}" isExecutable="false">
+    <bpmn:documentation>${xmlEsc((p.purpose||'')+(p.scope?'\n'+p.scope:''))}</bpmn:documentation>${proc}
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="${lanes?'Collaboration_1':pid}">${di}
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
+`;
+}
+
+/* standalone HTML guide (opens in any browser, printable to PDF) */
+async function buildHtmlGuide(){
+  await buildPreview(); const body=($('#paper')||{}).innerHTML||'';
+  const acc=getComputedStyle(document.documentElement).getPropertyValue('--doc-accent').trim()||'#0d6b63';
+  const soft=getComputedStyle(document.documentElement).getPropertyValue('--doc-soft').trim()||'#e3efed';
+  return `<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${esc(S.process.name)} — ${esc(S.process.code)}</title>
+<style>
+body{margin:0;background:#eef2f1;font-family:"IBM Plex Sans Arabic",Tahoma,Arial,sans-serif;color:#1b2329}
+.paper{background:#fff;max-width:820px;margin:24px auto;padding:44px 48px;font-size:14px;line-height:1.85;box-shadow:0 2px 10px rgba(0,0,0,.1)}
+h1{font-size:26px;color:${acc};margin:0 0 4px} h2{font-size:17px;color:${acc};margin:28px 0 8px;padding-bottom:4px;border-bottom:1.5px solid ${acc}} h3{font-size:14.5px;margin:16px 0 4px}
+p{margin:0 0 6px} table{border-collapse:collapse;width:100%;font-size:12.5px;margin:6px 0 10px} th,td{border:1px solid #b9c6c4;padding:5px 7px;text-align:right;vertical-align:top} th{background:${soft}}
+.meta td:first-child{background:#f2f6f5;width:28%;font-weight:600} img{max-width:100%} .pcode{font-family:monospace;font-size:11.5px;color:#56666d;direction:ltr;unicode-bidi:isolate}
+.cover{border-bottom:3px solid ${acc};padding-bottom:14px;margin-bottom:8px} .logo{max-height:64px}
+@media print{body{background:#fff}.paper{box-shadow:none;margin:0;max-width:none;padding:0}h2{break-after:avoid}tr,img{break-inside:avoid}}
+</style></head><body><div class="paper">${body}</div></body></html>`;
+}
+
+/* Word & PDF as blobs (also used by the single-file buttons) */
+async function buildDocxBlob(){ return await exportDocx(true); }
+async function buildPdfBlob(){
+  if(!window.html2pdf) throw new Error('pdf-lib');
+  await buildPreview();
+  const src=$('#paper'); const host=document.createElement('div'); host.style.cssText='position:fixed;inset-inline-start:-10000px;top:0;width:760px;direction:rtl';
+  const clone=src.cloneNode(true); clone.style.boxShadow='none'; clone.style.width='760px'; host.appendChild(clone); document.body.appendChild(host);
+  try{ return await window.html2pdf().set({margin:[10,8,12,8], image:{type:'jpeg',quality:.95}, html2canvas:{scale:2, useCORS:true, letterRendering:false, backgroundColor:'#ffffff'}, jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}, pagebreak:{mode:['css','legacy'], avoid:['tr','h3','img']}}).from(clone).outputPdf('blob'); }
+  finally{ host.remove(); }
+}
+
+/* the export catalogue */
+const EXPORTS = [
+  {id:'docx', group:'المستندات', name:'دليل الإجراء Word', ext:'docx', desc:'الدليل كاملًا بالأقسام المختارة، قابل للتعديل في Word.', build:buildDocxBlob},
+  {id:'pdf',  group:'المستندات', name:'دليل الإجراء PDF', ext:'pdf', desc:'نسخة ثابتة للاعتماد والتوزيع.', build:buildPdfBlob},
+  {id:'html', group:'المستندات', name:'صفحة ويب HTML', ext:'html', desc:'تُفتح في أي متصفح وتُطبع منه، دون برامج.', build:async()=>new Blob([await buildHtmlGuide()],{type:'text/html'})},
+  {id:'xlsx', group:'الجداول', name:'مصنف Excel شامل', ext:'xlsx', desc:'9 أوراق: الخطوات، RACI، الأدوار، التفويضات، المنهجية، الإصدارات، السجل…', build:buildXlsx},
+  {id:'csv',  group:'الجداول', name:'مصفوفة الصلاحيات CSV', ext:'csv', desc:'جدول RACI خام لأي نظام أو جدول بيانات.', build:async()=>new Blob([csvOf(raciGrid())],{type:'text/csv'}), suffix:'raci'},
+  {id:'png',  group:'الخريطة', name:'صورة PNG', ext:'png', desc:'صورة عالية الدقة للعروض والمراسلات.', build:async()=>(await svgToPng(2.5)).blob, suffix:'map'},
+  {id:'svg',  group:'الخريطة', name:'رسم متجه SVG', ext:'svg', desc:'لا يفقد دقته عند التكبير، ويُفتح في برامج التصميم.', build:async()=>new Blob([buildSvgText()],{type:'image/svg+xml'}), suffix:'map'},
+  {id:'bpmn', group:'الخريطة', name:'BPMN 2.0 XML', ext:'bpmn', desc:'يُفتح في Camunda وbpmn.io وSignavio، مع الحارات والصلاحيات.', build:async()=>new Blob([buildBpmn()],{type:'application/xml'})},
+  {id:'json', group:'النموذج', name:'نسخة النموذج JSON', ext:'json', desc:'نسخة احتياطية كاملة تُستورد في الاستوديو.', build:async()=>new Blob([JSON.stringify(S,null,2)],{type:'application/json'}), suffix:'model'}
+];
+function exportName(x){ return `${fileBase()}${x.suffix?'-'+x.suffix:''}.${x.ext}`; }
+async function runExport(id){
+  const x=EXPORTS.find(e=>e.id===id); if(!x) return;
+  if(ui.exporting) return; ui.exporting=true; setExportStatus(`جارٍ تجهيز ${x.name}…`);
+  try{
+    const blob=await x.build();
+    let name=exportName(x), data=blob;
+    if(!DL_OK.includes(x.ext) && window.claude && window.claude.use && typeof directDownload==='undefined'){
+      const Z=await loadJSZip(); const z=new Z(); z.file(name, await blobBytes(blob)); data=await z.generateAsync({type:'blob'}); name+='.zip';
+    }
+    setExportStatus(''); await saveFile(name, data, 'تصدير '+x.name);
+  }catch(e){ setExportStatus(`تعذر تجهيز ${x.name}.`); toast('تعذر التصدير'); }
+  finally{ ui.exporting=false; }
+}
+async function exportBundle(){
+  if(ui.exporting) return; ui.exporting=true;
+  const picked=EXPORTS.filter(x=>ui.bundle[x.id]);
+  if(!picked.length){ ui.exporting=false; toast('اختر ملفًا واحدًا على الأقل'); return; }
+  try{
+    const Z=await loadJSZip(); const z=new Z(); const folder=z.folder(fileBase()); const failed=[];
+    for(let i=0;i<picked.length;i++){ const x=picked[i]; setExportStatus(`جارٍ تجهيز الحزمة (${i+1} من ${picked.length}): ${x.name}…`);
+      try{ folder.file(exportName(x), await blobBytes(await x.build())); }catch(_){ failed.push(x.name); } }
+    folder.file('README.txt', `${S.process.name} (${S.process.code}) — الإصدار ${S.process.version}\nصُدّرت في ${now()} من استوديو مَسار.\n\n`+picked.filter(x=>!failed.includes(x.name)).map(x=>`- ${exportName(x)}: ${x.name}. ${x.desc}`).join('\n')+'\n');
+    setExportStatus('جارٍ ضغط الحزمة…');
+    const blob=await z.generateAsync({type:'blob', compression:'DEFLATE'});
+    setExportStatus(failed.length?`تعذر تجهيز: ${failed.join('، ')}`:'');
+    await saveFile(`${fileBase()}-package.zip`, blob, 'تصدير حزمة كاملة');
+  }catch(e){ setExportStatus('تعذر تجهيز الحزمة.'); toast('تعذر التصدير'); }
+  finally{ ui.exporting=false; }
+}
+function exportCentre(){
+  const groups=[...new Set(EXPORTS.map(x=>x.group))];
+  return `<h3>تصدير الملفات</h3>
+    ${groups.map(g=>`<div class="xgroup"><h4>${g}</h4>${EXPORTS.filter(x=>x.group===g).map(x=>`
+      <div class="xrow"><label class="chk" title="ضمن الحزمة"><input type="checkbox" id="bx_${x.id}" data-bundle="${x.id}" ${ui.bundle[x.id]?'checked':''} aria-label="ضمن الحزمة: ${x.name}"></label>
+        <div class="xinfo"><b>${x.name}</b><span>${x.desc}</span></div>
+        <button class="btn" type="button" data-export="${x.id}"><span class="xext">.${x.ext}</span> تنزيل</button></div>`).join('')}</div>`).join('')}
+    <div class="xbundle"><button class="btn primary" type="button" data-act="exportBundle">تنزيل المحدد في حزمة ZIP</button><span class="hint">المربعات تحدد ما يدخل في الحزمة.</span></div>
+    <p class="hint" id="exportStatus" style="margin:0" aria-live="polite"></p>`;
+}
 
 /* ---------- boot ---------- */
 applyAppearance(); apObserve();
